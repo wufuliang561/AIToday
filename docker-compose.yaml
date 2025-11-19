@@ -1,0 +1,20 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aitoday-postgres
+    environment:
+      POSTGRES_USER: aitoday
+      POSTGRES_PASSWORD: aitoday
+      POSTGRES_DB: aitoday
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aitoday"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+volumes:
+  pgdata:

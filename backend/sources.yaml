@@ -1,0 +1,73 @@
+ai:
+  base_url: https://zenmux.ai/api/v1
+  api_key: "sk-ai-v1-1bc3cffa2758cf78a99af5c40a59073d956140b2fc6c08f38a151780680993d3"
+  model: google/gemini-2.5-pro-free
+
+system:
+  proxy: "http://127.0.0.1:7897" # Set your proxy URL here if needed
+
+api_keys:
+  youtube: "AIzaSyD1T0A9MLj_sz9I1iSMgW3ESdvLzOYZl_E"
+  twitter_bearer_token: ""
+  reddit_client_id: "CEbFcSq8_1_u_Dd_NGrEFQ"
+  reddit_client_secret: "1MPiHpniQnxSib-3WS7J5JuTyifdPQ"
+  reddit_user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+
+database:
+  host: "localhost"
+  port: 5432
+  user: "aitoday"
+  password: "aitoday"
+  dbname: "aitoday"
+
+youtube:
+  channels:
+  - id: "UCXZCJLdBC09xxGZ6gcdrc6A"  # OpenAI
+    name: "OpenAI"
+    enabled: true
+    description: "OpenAI official channel"
+  
+  - id: "UC_x5XG1OV2P6uZZ5FSM9Ttw"  # Google DeepMind
+    name: "Google DeepMind"
+    enabled: true
+    description: "Google DeepMind official channel"
+  
+  - id: "UCBa5G_ESCn8Yd4vw5U-gIcg"  # Andrej Karpathy
+    name: "Andrej Karpathy"
+    enabled: true
+    description: "AI researcher and educator"
+  
+  - id: "UCxBcwypKK-W3GHd_RZ9FZrQ"  # Latent Space ✅
+    name: "Latent Space"
+    enabled: true
+    description: "AI engineering and research"
+  
+  - id: "UCSI7h9hydQ40K5MJHnCrQvw"  # No Priors ✅
+    name: "No Priors"
+    enabled: true
+    description: "AI, ML, Tech & Startups"
+  
+  - id: "UCXl4i9dYBrFOabk0xGmbkRA"  # Dwarkesh Podcast ✅
+    name: "Dwarkesh Podcast"
+    enabled: true
+    description: "Deep conversations on AI and tech"
+
+twitter:
+  users:
+    # - id: "44196397" # Example: Elon Musk
+    #   username: "elonmusk"
+    # - id: "123456789"
+    #   username: "OpenAI"
+
+reddit:
+  subreddits:
+    - "artificial"
+    - "MachineLearning"
+    - "LocalLLaMA"
+
+rss:
+  feeds:
+    - url: "https://openai.com/blog/rss.xml"
+      name: "OpenAI Blog"
+    - url: "https://research.google/blog/rss"
+      name: "Google Research"
