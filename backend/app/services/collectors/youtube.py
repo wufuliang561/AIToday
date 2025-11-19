@@ -12,8 +12,8 @@ class YouTubeCollector(BaseCollector):
     def __init__(self):
         self.config = load_sources_config()
         self.api_key = settings.YOUTUBE_API_KEY if hasattr(settings, 'YOUTUBE_API_KEY') else "" 
-        # Note: We need to add YOUTUBE_API_KEY to settings if not present, 
-        # or just use a placeholder for now.
+        # 注意：如果不存在，我们需要将 YOUTUBE_API_KEY 添加到设置中，
+        # 或者暂时只使用占位符。
 
     async def collect(self) -> List[RawItem]:
         logger.info("Starting YouTube collection...")
@@ -26,7 +26,7 @@ class YouTubeCollector(BaseCollector):
         channels = self.config.get("youtube", {}).get("channels", [])
         logger.info(f"Found {len(channels)} channels to process.")
         
-        # Calculate time for "today" (last 24 hours for simplicity)
+        # 计算“今天”的时间（为简单起见，取过去 24 小时）
         time_threshold = (datetime.utcnow() - timedelta(hours=24)).isoformat() + "Z"
 
         for channel in channels:
@@ -53,7 +53,7 @@ class YouTubeCollector(BaseCollector):
                 video_id = item["id"]["videoId"]
                 snippet = item["snippet"]
                 
-                # Get statistics for heat score
+                # 获取热度评分的统计数据
                 stats_request = youtube.videos().list(
                     part="statistics",
                     id=video_id
@@ -62,7 +62,7 @@ class YouTubeCollector(BaseCollector):
                 stats = stats_response["items"][0]["statistics"]
                 view_count = int(stats.get("viewCount", 0))
                 
-                # Calculate heat score (Simple algorithm from PRD)
+                # 计算热度评分（来自 PRD 的简单算法）
                 # S_yt = min(100, (Views / 10000) * 2)
                 heat_score = min(100.0, (view_count / 10000) * 2)
 
@@ -71,7 +71,7 @@ class YouTubeCollector(BaseCollector):
                     source_id=video_id,
                     original_title=snippet["title"],
                     original_text=snippet["description"],
-                    title_cn="", # To be filled by LLM
+                    title_cn="", # 将由 LLM 填充
                     url=f"https://www.youtube.com/watch?v={video_id}",
                     published_at=datetime.fromisoformat(snippet["publishedAt"].replace("Z", "+00:00")),
                     heat_score=heat_score,

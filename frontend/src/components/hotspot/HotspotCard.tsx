@@ -1,50 +1,61 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card"
-import { Badge } from "@/components/ui/Badge"
-import { Flame, ChevronRight } from "lucide-react"
-import { Button } from "@/components/ui/Button"
+import { TrendingUp, ArrowRight } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface HotspotCardProps {
     title: string
-    summary?: string
+    summary: string
     score: number
     itemsCount: number
     time: string
+    className?: string
 }
 
-export function HotspotCard({ title, summary, score, itemsCount, time }: HotspotCardProps) {
+export function HotspotCard({
+    title,
+    summary,
+    score,
+    itemsCount,
+    time,
+    className,
+}: HotspotCardProps) {
     return (
-        <Card className="group relative overflow-hidden transition-all hover:shadow-md hover:border-primary/20">
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                <Flame className="h-24 w-24 text-primary" />
-            </div>
-            <CardHeader className="pb-2">
-                <div className="flex justify-between items-start">
-                    <Badge variant="secondary" className="mb-2">
-                        <Flame className="mr-1 h-3 w-3 text-orange-500" />
-                        Hotspot
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">{time}</span>
-                </div>
-                <CardTitle className="text-xl leading-tight group-hover:text-primary transition-colors">
-                    {title}
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                    {summary || "No summary available."}
-                </p>
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                        <span className="font-medium text-foreground">{score}</span>
-                        <span>Heat Score</span>
-                        <span>•</span>
-                        <span>{itemsCount} sources</span>
+        <div
+            className={cn(
+                "group relative flex flex-col justify-between overflow-hidden border-2 border-black bg-white p-6 shadow-hard transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]",
+                className
+            )}
+        >
+            <div className="space-y-4">
+                <div className="flex items-center justify-between border-b-2 border-black pb-3">
+                    <div className="flex items-center gap-2 bg-accent px-3 py-1 border-2 border-black">
+                        <TrendingUp className="h-4 w-4" />
+                        <span className="text-xs font-bold uppercase">Score: {score}</span>
                     </div>
-                    <Button variant="ghost" size="sm" className="group-hover:translate-x-1 transition-transform">
-                        View Details <ChevronRight className="ml-1 h-4 w-4" />
-                    </Button>
+                    <span className="text-xs font-mono font-bold">{time}</span>
                 </div>
-            </CardContent>
-        </Card>
+
+                <div className="space-y-3">
+                    <h3 className="line-clamp-2 text-2xl font-black leading-none tracking-tight">
+                        {title}
+                    </h3>
+                    <p className="line-clamp-3 text-sm font-medium leading-relaxed text-gray-600">
+                        {summary}
+                    </p>
+                </div>
+            </div>
+
+            <div className="mt-6 flex items-center justify-between pt-4">
+                <div className="flex items-center gap-2 text-xs font-bold">
+                    <span className="flex h-6 w-6 items-center justify-center border-2 border-black bg-black text-white">
+                        {itemsCount}
+                    </span>
+                    <span className="uppercase tracking-wider">Events</span>
+                </div>
+                <button className="group/btn flex items-center gap-2 text-sm font-bold uppercase hover:underline">
+                    Read More <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                </button>
+            </div>
+        </div>
     )
 }
+

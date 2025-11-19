@@ -12,32 +12,32 @@ class ClusteringService:
 
     async def cluster_items(self):
         """
-        Cluster unclustered items into hotspots.
-        Simple logic: Group by similarity (mocked here) or just high heat items.
-        For this MVP, we will treat high heat items as hotspots themselves or group by simple keyword matching if possible.
+        将未聚类的条目聚类成热点。
+        简单逻辑：按相似度分组（此处为模拟）或仅按高热度条目分组。
+        对于此 MVP，我们将高热度条目视为热点本身，或者如果可能的话，按简单的关键字匹配进行分组。
         
-        Better approach for MVP:
-        1. Get unclustered items from last 24h.
-        2. If an item has very high heat (>80), it becomes a candidate for a hotspot.
-        3. Use LLM to generate a hotspot title from these high heat items.
+        MVP 的更好方法：
+        1. 获取过去 24 小时内未聚类的条目。
+        2. 如果一个条目的热度非常高（>80），它就成为热点的候选者。
+        3. 使用 LLM 从这些高热度条目生成热点标题。
         """
         
-        # Get unclustered items from last 24h
+        # 获取过去 24 小时内未聚类的条目
         time_threshold = datetime.utcnow() - timedelta(hours=24)
         items = self.db.query(RawItem).filter(
             RawItem.cluster_id == None,
             RawItem.published_at >= time_threshold
         ).all()
 
-        # Simple Clustering Logic for MVP:
-        # 1. Find items with heat_score > 80
-        # 2. Create a hotspot for each (or group if we had vector search)
+        # MVP 的简单聚类逻辑：
+        # 1. 查找 heat_score > 80 的条目
+        # 2. 为每个条目创建一个热点（如果我们有向量搜索，则进行分组）
         
         for item in items:
             if item.heat_score > 0:
-                # Create a new hotspot
+                # 创建一个新的热点
                 hotspot = Hotspot(
-                    title=item.title_cn or item.original_title, # Use item title as hotspot title for now
+                    title=item.title_cn or item.original_title, # 暂时使用条目标题作为热点标题
                     summary=item.summary_cn,
                     total_heat_score=item.heat_score
                 )
@@ -45,8 +45,8 @@ class ClusteringService:
                 self.db.commit()
                 self.db.refresh(hotspot)
                 
-                # Link item to hotspot
+                # 将条目链接到热点
                 item.cluster_id = hotspot.id
                 self.db.commit()
                 
-        # TODO: Implement vector-based clustering for better aggregation
+        # TODO: 实现基于向量的聚类以获得更好的聚合效果

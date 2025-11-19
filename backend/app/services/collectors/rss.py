@@ -28,8 +28,8 @@ class RSSCollector(BaseCollector):
                 continue
             
             for entry in feed.entries:
-                # Basic deduplication check should happen at DB level, 
-                # but here we just create the objects.
+                # 基本的重复数据删除检查应该在数据库级别进行，
+                # 但在这里我们只是创建对象。
                 
                 published = None
                 if hasattr(entry, "published_parsed"):
@@ -44,10 +44,10 @@ class RSSCollector(BaseCollector):
                     source_id=entry.id if hasattr(entry, "id") else entry.link,
                     original_title=entry.title,
                     original_text=entry.summary if hasattr(entry, "summary") else "",
-                    title_cn="", # To be filled by LLM
+                    title_cn="", # 将由 LLM 填充
                     url=entry.link,
                     published_at=published,
-                    heat_score=60.0 # Default score for RSS
+                    heat_score=60.0 # RSS 的默认分数
                 )
                 items.append(item)
                 

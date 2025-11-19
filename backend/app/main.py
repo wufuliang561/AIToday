@@ -15,7 +15,7 @@ from contextlib import asynccontextmanager
 import asyncio
 
 # Create tables
-# Create tables
+# 创建数据库表
 try:
     Base.metadata.create_all(bind=engine)
 except Exception as e:
@@ -24,7 +24,7 @@ except Exception as e:
 scheduler = AsyncIOScheduler()
 
 async def run_collection_task():
-    print("Starting collection task...")
+    print("Starting collection task... (开始采集任务...)")
     db = SessionLocal()
     try:
         collectors = [
@@ -45,39 +45,42 @@ async def run_collection_task():
             except Exception as e:
                 print(f"Error in collector {collector.__class__.__name__}: {e}")
 
-        # Save and Process Items
+        # 保存并处理条目
         for item in all_items:
-            # Check if exists
-            # (In a real app, we'd query DB first or use ON CONFLICT DO NOTHING)
-            # Here we just try to add and ignore if fails (or rely on unique constraint)
+            # 优化：在处理前检查是否存在，以节省 LLM 成本
+            existing = db.query(RawItem).filter(RawItem.source_id == item.source_id).first()
+            if existing:
+                # print(f"Skipping duplicate: {item.title_cn or item.original_title}")
+                continue
+
             try:
-                # Process (Translate/Summarize)
+                # 处理（翻译/总结）
                 processed_item = await processor.process_item(item)
                 db.add(processed_item)
                 db.commit()
             except Exception as e:
                 db.rollback()
-                # print(f"Error saving item: {e}") # Duplicate likely
+                print(f"Error saving item: {e}")
 
-        # Run Clustering
+        # 运行聚类
         await clustering.cluster_items()
-        print("Collection and processing complete.")
+        print("Collection and processing complete. (采集和处理完成。)")
         
     finally:
         db.close()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Start scheduler
+    # 启动调度器
     scheduler.add_job(run_collection_task, 'interval', hours=2)
     scheduler.start()
     
-    # Run once on startup for demo purposes
+    # 启动时运行一次（用于演示）
     asyncio.create_task(run_collection_task())
     
     yield
     
-    # Shutdown scheduler
+    # 关闭调度器
     scheduler.shutdown()
 
 app = FastAPI(
@@ -86,7 +89,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS
+# 跨域资源共享 (CORS) 配置
 from fastapi.middleware.cors import CORSMiddleware
 app.add_middleware(
     CORSMiddleware,

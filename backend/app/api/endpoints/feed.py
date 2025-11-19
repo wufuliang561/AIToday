@@ -8,7 +8,7 @@ from datetime import datetime
 
 router = APIRouter()
 
-# Dependency
+# 依赖项
 def get_db():
     db = SessionLocal()
     try:

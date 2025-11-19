@@ -14,7 +14,7 @@ class RedditCollector(BaseCollector):
 
     async def collect(self) -> List[RawItem]:
         if not self.client_id or not self.client_secret:
-            print("Warning: REDDIT_CLIENT_ID or REDDIT_CLIENT_SECRET not set.")
+            print("Warning: REDDIT_CLIENT_ID or REDDIT_CLIENT_SECRET not set. (警告：未设置 REDDIT_CLIENT_ID 或 REDDIT_CLIENT_SECRET。)")
             return []
 
         reddit = praw.Reddit(
@@ -29,10 +29,10 @@ class RedditCollector(BaseCollector):
         for subreddit_name in subreddits:
             try:
                 subreddit = reddit.subreddit(subreddit_name)
-                # Fetch top posts from last 24 hours
+                # 获取过去 24 小时的热门帖子
                 for submission in subreddit.top(time_filter="day", limit=10):
                     
-                    # Heat score: S_rd = min(100, Upvotes*0.5 + Comments*1)
+                    # 热度评分：S_rd = min(100, Upvotes*0.5 + Comments*1)
                     heat_score = min(100.0, (submission.score * 0.5) + (submission.num_comments * 1))
 
                     raw_item = RawItem(
@@ -40,7 +40,7 @@ class RedditCollector(BaseCollector):
                         source_id=submission.id,
                         original_title=submission.title,
                         original_text=submission.selftext,
-                        title_cn="", # To be filled by LLM
+                        title_cn="", # 将由 LLM 填充
                         url=f"https://www.reddit.com{submission.permalink}",
                         published_at=datetime.utcfromtimestamp(submission.created_utc),
                         heat_score=heat_score,

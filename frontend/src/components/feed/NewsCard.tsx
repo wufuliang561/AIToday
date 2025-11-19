@@ -1,7 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card"
-import { Badge } from "@/components/ui/Badge"
-import { ExternalLink, Calendar, User } from "lucide-react"
 import Link from "next/link"
+import { ExternalLink, Calendar, User } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface NewsCardProps {
     title: string
@@ -11,54 +10,67 @@ interface NewsCardProps {
     author?: string
     category?: string
     summary?: string
+    className?: string
 }
 
-export function NewsCard({ title, source, url, publishedAt, author, category, summary }: NewsCardProps) {
+export function NewsCard({
+    title,
+    source,
+    url,
+    publishedAt,
+    author,
+    category,
+    summary,
+    className,
+}: NewsCardProps) {
     return (
-        <Card className="hover:bg-accent/5 transition-colors border-none shadow-none bg-transparent">
-            <CardHeader className="pb-2 px-0">
-                <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-2">
-                        <Badge variant="outline" className="text-xs font-normal">
-                            {source}
-                        </Badge>
-                        {category && (
-                            <Badge variant="secondary" className="text-xs font-normal">
-                                {category}
-                            </Badge>
-                        )}
+        <Link
+            href={url}
+            target="_blank"
+            className={cn(
+                "group block border-2 border-black bg-white p-5 shadow-hard-sm transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-hard",
+                className
+            )}
+        >
+            <div className="space-y-3">
+                <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider">
+                    <div className="flex items-center gap-3">
+                        <span className="bg-black text-white px-2 py-0.5">{source}</span>
+                        <span className="flex items-center gap-1 text-gray-500">
+                            <Calendar className="h-3 w-3" />
+                            {publishedAt}
+                        </span>
                     </div>
-                    <span className="text-xs text-muted-foreground flex items-center">
-                        <Calendar className="mr-1 h-3 w-3" />
-                        {publishedAt}
-                    </span>
+                    {category && (
+                        <span className="bg-accent border border-black px-2 py-0.5 text-[10px] font-bold">
+                            {category}
+                        </span>
+                    )}
                 </div>
-                <CardTitle className="text-lg font-medium leading-snug">
-                    <Link href={url} target="_blank" rel="noopener noreferrer" className="hover:underline decoration-primary underline-offset-4">
-                        {title}
-                    </Link>
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="px-0 pb-4 border-b">
+
+                <h3 className="text-lg font-bold leading-tight group-hover:underline decoration-2 underline-offset-2">
+                    {title}
+                </h3>
+
                 {summary && (
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                    <p className="line-clamp-2 text-sm font-medium text-gray-600">
                         {summary}
                     </p>
                 )}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center text-xs text-muted-foreground">
+
+                <div className="flex items-center justify-between pt-2 border-t-2 border-gray-100 mt-2">
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-500">
                         {author && (
-                            <span className="flex items-center mr-4">
-                                <User className="mr-1 h-3 w-3" />
+                            <span className="flex items-center gap-1">
+                                <User className="h-3 w-3" />
                                 {author}
                             </span>
                         )}
                     </div>
-                    <Link href={url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary flex items-center hover:text-primary/80">
-                        Read Source <ExternalLink className="ml-1 h-3 w-3" />
-                    </Link>
+                    <ExternalLink className="h-4 w-4 text-black transition-transform group-hover:rotate-45" />
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </Link>
     )
 }
+

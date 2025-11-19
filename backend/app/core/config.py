@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "AIToday Backend"
     API_V1_STR: str = "/api/v1"
     
-    # Database
+    # 数据库配置
     POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "localhost")
     POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "password")
@@ -21,8 +21,8 @@ class Settings(BaseSettings):
         if isinstance(v, str):
             return v
             
-        # Try to load from sources.yaml first
-        # Use os.getenv directly to avoid validation order issues
+        # 首先尝试从 sources.yaml 加载
+        # 直接使用 os.getenv 以避免验证顺序问题
         config_path = os.getenv("SOURCES_CONFIG_PATH", "sources.yaml")
         
         if os.path.exists(config_path):
@@ -45,7 +45,7 @@ class Settings(BaseSettings):
                 pass
 
         print("Falling back to env vars for DB config")
-        # Fallback to env vars
+        # 回退到环境变量进行数据库配置
         db_name = os.getenv("POSTGRES_DB", "aitoday")
         return PostgresDsn.build(
             scheme="postgresql",
@@ -55,24 +55,33 @@ class Settings(BaseSettings):
             path=db_name,
         )
 
-    # OpenAI
+    # OpenAI 配置
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     OPENAI_BASE_URL: str = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
     OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
     
-    # YouTube
+    # YouTube 配置
     YOUTUBE_API_KEY: str = os.getenv("YOUTUBE_API_KEY", "")
 
-    # Twitter
+    # Twitter 配置
     TWITTER_BEARER_TOKEN: str = os.getenv("TWITTER_BEARER_TOKEN", "")
 
-    # Reddit
+    # Reddit 配置
     REDDIT_CLIENT_ID: str = os.getenv("REDDIT_CLIENT_ID", "")
     REDDIT_CLIENT_SECRET: str = os.getenv("REDDIT_CLIENT_SECRET", "")
     REDDIT_USER_AGENT: str = os.getenv("REDDIT_USER_AGENT", "AIToday/0.1.0")
 
-    # Sources Config Path
+    # 源配置文件路径
     SOURCES_CONFIG_PATH: str = os.getenv("SOURCES_CONFIG_PATH", "sources.yaml")
+
+    # 新闻分类
+    NEWS_CATEGORIES: List[str] = [
+        "AI工具",
+        "学术论文",
+        "行业新闻",
+        "教程指南",
+        "其他"
+    ]
 
     class Config:
         case_sensitive = True
@@ -80,7 +89,7 @@ class Settings(BaseSettings):
     @field_validator("OPENAI_API_KEY", "OPENAI_BASE_URL", "OPENAI_MODEL", "YOUTUBE_API_KEY", "TWITTER_BEARER_TOKEN", "REDDIT_CLIENT_ID", "REDDIT_CLIENT_SECRET", "REDDIT_USER_AGENT", mode="before")
     @classmethod
     def load_from_yaml(cls, v, info: ValidationInfo) -> Any:
-        # Logic to load from yaml
+        # 从 yaml 加载的逻辑
         # Note: In Pydantic v2, info.data might not contain all fields if they haven't been validated yet.
         # However, SOURCES_CONFIG_PATH is defined at the end, so it might not be in info.data yet if we validate these fields first.
         # But SOURCES_CONFIG_PATH has a default value.
@@ -123,7 +132,7 @@ class Settings(BaseSettings):
     @field_validator("SOURCES_CONFIG_PATH", mode="after")
     @classmethod
     def apply_proxy(cls, v, info: ValidationInfo):
-        # We use SOURCES_CONFIG_PATH as a trigger to load system config
+        # 我们使用 SOURCES_CONFIG_PATH 作为触发器来加载系统配置
         if os.path.exists(v):
             try:
                 with open(v, "r") as f:

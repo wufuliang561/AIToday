@@ -71,3 +71,6 @@ rss:
       name: "OpenAI Blog"
     - url: "https://research.google/blog/rss"
       name: "Google Research"
+    - url: "https://rss.app/feeds/v1.1/AAPQYwfvRjqTfYsj.json"
+      name: "naval Ai "
+

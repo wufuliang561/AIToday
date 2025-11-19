@@ -6,6 +6,6 @@ class BaseCollector(ABC):
     @abstractmethod
     async def collect(self) -> List[RawItem]:
         """
-        Collect data from the source and return a list of RawItem objects.
+        从源收集数据并返回 RawItem 对象列表。
         """
         pass

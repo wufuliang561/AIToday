@@ -1,63 +1,51 @@
 import { getHotspots, getFeed } from "@/lib/api"
 import { HotspotCard } from "@/components/hotspot/HotspotCard"
 import { NewsCard } from "@/components/feed/NewsCard"
-
-// Actually, for simplicity and "Apple-style", let's just show Hotspots on top and Feed below, or side-by-side on large screens.
-// Let's go with a clean vertical layout: Hotspots (Horizontal Scroll) -> Feed (Vertical List).
+import FeedSection from "@/components/feed/FeedSection"
+import { Header } from "@/components/layout/Header"
 
 export default async function Home() {
   const hotspots = await getHotspots()
   const feed = await getFeed()
 
   return (
-    <div className="container py-8 space-y-10">
-      {/* Header */}
-      <div className="flex flex-col space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">今日 AI 热点</h1>
-        <p className="text-muted-foreground">
-          汇聚全网 AI 资讯精华。
-        </p>
-      </div>
+    <div className="min-h-screen bg-white bg-grid-pattern font-sans text-black selection:bg-accent selection:text-black">
+      <Header />
 
-      {/* Hotspots Section */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold tracking-tight">热门事件</h2>
-        </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {hotspots.map((hotspot) => (
-            <HotspotCard
-              key={hotspot.id}
-              title={hotspot.title}
-              summary={hotspot.summary}
-              score={hotspot.score}
-              itemsCount={hotspot.itemsCount}
-              time={hotspot.time}
-            />
-          ))}
-        </div>
-      </section>
+      <main className="container pb-20 pt-12">
+        {/* Hero / Hotspots Section */}
+        <section className="mb-20 space-y-8 animate-slide-up">
+          <div className="flex flex-col gap-2 border-l-4 border-black pl-6">
+            <h2 className="text-5xl font-black tracking-tighter uppercase md:text-7xl">
+              Hotspots
+            </h2>
+            <p className="text-lg font-bold text-gray-500 max-w-xl">
+              Curated AI news and events from around the web. Real-time updates.
+            </p>
+          </div>
 
-      {/* Feed Section */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold tracking-tight">最新动态</h2>
-        </div>
-        <div className="space-y-4">
-          {feed.map((item) => (
-            <NewsCard
-              key={item.id}
-              title={item.title}
-              source={item.source}
-              url={item.url}
-              publishedAt={item.publishedAt}
-              author={item.author}
-              category={item.category}
-              summary={item.summary}
-            />
-          ))}
-        </div>
-      </section>
+          {/* Horizontal Scroll Container */}
+          <div className="relative -mx-4 px-4 md:mx-0 md:px-0">
+            <div className="flex gap-8 overflow-x-auto pb-8 pt-4 scrollbar-hide snap-x">
+              {hotspots.map((hotspot) => (
+                <div key={hotspot.id} className="min-w-[85vw] snap-center md:min-w-[450px]">
+                  <HotspotCard
+                    title={hotspot.title}
+                    summary={hotspot.summary}
+                    score={hotspot.score}
+                    itemsCount={hotspot.itemsCount}
+                    time={hotspot.time}
+                    className="h-full"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Feed Section */}
+        <FeedSection items={feed} />
+      </main>
     </div>
   )
 }
