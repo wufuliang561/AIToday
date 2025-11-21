@@ -1,52 +1,185 @@
-from typing import List
+import math
+import logging
+from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session
 from app.models.item import RawItem
 from app.models.hotspot import Hotspot
 from app.services.processor import Processor
 from datetime import datetime, timedelta
 
+logger = logging.getLogger(__name__)
+
 class ClusteringService:
     def __init__(self, db: Session):
         self.db = db
         self.processor = Processor()
+        self.similarity_threshold = 0.85
+        self.high_heat_threshold = 80.0
+        self.min_sources = 2
+        self.min_cluster_size = 2
 
     async def cluster_items(self):
         """
-        将未聚类的条目聚类成热点。
-        简单逻辑：按相似度分组（此处为模拟）或仅按高热度条目分组。
-        对于此 MVP，我们将高热度条目视为热点本身，或者如果可能的话，按简单的关键字匹配进行分组。
-        
-        MVP 的更好方法：
-        1. 获取过去 24 小时内未聚类的条目。
-        2. 如果一个条目的热度非常高（>80），它就成为热点的候选者。
-        3. 使用 LLM 从这些高热度条目生成热点标题。
+        使用向量余弦相似度将条目聚为热点。
+        满足“>=2 个不同来源且相似度 > 0.85”的组合会生成热点，
+        如果单条热度极高（>=80）也会落入热点。
         """
-        
-        # 获取过去 24 小时内未聚类的条目
         time_threshold = datetime.utcnow() - timedelta(hours=24)
-        items = self.db.query(RawItem).filter(
+        items: List[RawItem] = self.db.query(RawItem).filter(
             RawItem.cluster_id == None,
             RawItem.published_at >= time_threshold
         ).all()
 
-        # MVP 的简单聚类逻辑：
-        # 1. 查找 heat_score > 80 的条目
-        # 2. 为每个条目创建一个热点（如果我们有向量搜索，则进行分组）
-        
+        if not items:
+            logger.info("No items found for clustering window")
+            return
+
+        vectorized_items = []
         for item in items:
-            if item.heat_score > 0:
-                # 创建一个新的热点
-                hotspot = Hotspot(
-                    title=item.title_cn or item.original_title, # 暂时使用条目标题作为热点标题
-                    summary=item.summary_cn,
-                    total_heat_score=item.heat_score
+            vector = self._vector_from_item(item)
+            if vector:
+                vectorized_items.append((item, vector))
+
+        clusters = []
+        # 先按热度排序，热点标题更容易由高热度条目引领
+        for item, vector in sorted(
+            vectorized_items,
+            key=lambda pair: pair[0].heat_score or 0,
+            reverse=True
+        ):
+            matched_cluster = None
+            for cluster in clusters:
+                similarity = self._cosine_similarity(vector, cluster["centroid"])
+                if similarity >= self.similarity_threshold:
+                    matched_cluster = cluster
+                    break
+
+            if matched_cluster:
+                matched_cluster["members"].append(item)
+                matched_cluster["vectors"].append(vector)
+                matched_cluster["centroid"] = self._average_vector(matched_cluster["vectors"])
+            else:
+                clusters.append({
+                    "members": [item],
+                    "vectors": [vector],
+                    "centroid": vector
+                })
+
+        processed_ids = set()
+        for cluster in clusters:
+            sources = {item.source_platform for item in cluster["members"] if item.source_platform}
+            if len(cluster["members"]) >= self.min_cluster_size and len(sources) >= self.min_sources:
+                logger.info(
+                    "Creating hotspot from cluster with %d items and sources=%s",
+                    len(cluster["members"]),
+                    ",".join(sorted(sources)),
                 )
-                self.db.add(hotspot)
-                self.db.commit()
-                self.db.refresh(hotspot)
-                
-                # 将条目链接到热点
-                item.cluster_id = hotspot.id
-                self.db.commit()
-                
-        # TODO: 实现基于向量的聚类以获得更好的聚合效果
+                await self._create_hotspot(cluster["members"])
+                processed_ids.update(item.id for item in cluster["members"] if item.id)
+
+        # 单条高热度兜底
+        high_heat_items = [
+            item for item in items
+            if item.id not in processed_ids and (item.heat_score or 0) >= self.high_heat_threshold
+        ]
+
+        for item in high_heat_items:
+            logger.info("High-heat item promoted to hotspot (source_id=%s, score=%.2f)", item.source_id, item.heat_score)
+            await self._create_hotspot([item])
+            processed_ids.add(item.id)
+
+    async def _create_hotspot(self, items: List[RawItem]):
+        if not items:
+            return
+
+        title, summary = await self._generate_hotspot_text(items)
+        total_heat = sum(item.heat_score or 0 for item in items)
+
+        hotspot = Hotspot(
+            title=title,
+            summary=summary,
+            total_heat_score=total_heat
+        )
+        self.db.add(hotspot)
+        self.db.commit()
+        self.db.refresh(hotspot)
+
+        for item in items:
+            item.cluster_id = hotspot.id
+        self.db.commit()
+        logger.info("Hotspot #%s created with %d items", hotspot.id, len(items))
+
+    async def _generate_hotspot_text(self, items: List[RawItem]) -> Tuple[str, Optional[str]]:
+        title_candidates = [item.title_cn or item.original_title for item in items if item.title_cn or item.original_title]
+        fallback_title = title_candidates[0] if title_candidates else "AI 热点"
+        fallback_summary = "；".join(title_candidates[:3])
+
+        if not self.processor.client:
+            return fallback_title, fallback_summary
+        if not title_candidates:
+            return fallback_title, fallback_summary
+
+        prompt_lines = "\n".join(f"{idx+1}. {title}" for idx, title in enumerate(title_candidates))
+        prompt = f"""
+你是一名中文科技媒体编辑。请阅读以下资讯标题列表，生成一个简洁有力的中文热点标题以及一句中文概述。
+
+资讯列表：
+{prompt_lines}
+
+输出格式：
+Title: <合并后的标题>
+Summary: <一句话概述>
+"""
+
+        try:
+            response = self.processor.client.chat.completions.create(
+                model=self.processor.model,
+                messages=[
+                    {"role": "system", "content": "你是一名科技资讯编辑，擅长概括热点事件。"},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            content = response.choices[0].message.content.strip()
+            hotspot_title = fallback_title
+            hotspot_summary = fallback_summary
+            for line in content.split("\n"):
+                if line.startswith("Title:"):
+                    hotspot_title = line.replace("Title:", "").strip() or hotspot_title
+                elif line.startswith("Summary:"):
+                    hotspot_summary = line.replace("Summary:", "").strip() or hotspot_summary
+            return hotspot_title, hotspot_summary
+        except Exception as e:
+            logger.exception("Error generating hotspot summary")
+            return fallback_title, fallback_summary
+
+    def _vector_from_item(self, item: RawItem) -> Optional[List[float]]:
+        embedding = item.embedding
+        if embedding is None:
+            return None
+        if isinstance(embedding, list):
+            return embedding
+        try:
+            return list(embedding)
+        except TypeError:
+            logger.exception("Unable to convert embedding for item %s", item.id)
+            return None
+
+    def _cosine_similarity(self, vec_a: List[float], vec_b: List[float]) -> float:
+        if not vec_a or not vec_b:
+            return 0.0
+        dot = sum(a * b for a, b in zip(vec_a, vec_b))
+        norm_a = math.sqrt(sum(a * a for a in vec_a))
+        norm_b = math.sqrt(sum(b * b for b in vec_b))
+        if norm_a == 0 or norm_b == 0:
+            return 0.0
+        return dot / (norm_a * norm_b)
+
+    def _average_vector(self, vectors: List[List[float]]) -> List[float]:
+        if not vectors:
+            return []
+        dimension = len(vectors[0])
+        totals = [0.0] * dimension
+        for vec in vectors:
+            for idx in range(dimension):
+                totals[idx] += vec[idx]
+        return [value / len(vectors) for value in totals]

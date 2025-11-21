@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, Float, DateTime, ForeignKey
+from pgvector.sqlalchemy import Vector
 from sqlalchemy.sql import func
 from app.db.base import Base
 
@@ -25,3 +26,4 @@ class RawItem(Base):
     # 算法字段
     heat_score = Column(Float, default=0.0)
     cluster_id = Column(Integer, ForeignKey("hotspots.id"), nullable=True)
+    embedding = Column(Vector(2560))

@@ -4,38 +4,8 @@
 
    ▲ Next.js 16.0.3 (Turbopack)
    - Local:         http://localhost:3000
-   - Network:       http://172.16.104.128:3000
+   - Network:       http://192.168.31.49:3000
 
  ✓ Starting...
- ✓ Ready in 1214ms
- ○ Compiling / ...
- GET / 200 in 4.1s (compile: 3.8s, render: 317ms)
- GET / 200 in 411ms (compile: 44ms, render: 367ms)
- ✓ Compiled in 393ms
- ⨯ ReferenceError: FeedSection is not defined
-    at Home (src/app/page.tsx:46:10)
-  44 |
-  45 |         {/* Feed Section */}
-> 46 |         <FeedSection items={feed} />
-     |          ^
-  47 |       </main>
-  48 |     </div>
-  49 |   ) {
-  digest: '149901379'
-}
- GET / 200 in 217ms (compile: 99ms, render: 119ms)
- ⨯ ReferenceError: FeedSection is not defined
-    at Home (src/app/page.tsx:46:10)
-  44 |
-  45 |         {/* Feed Section */}
-> 46 |         <FeedSection items={feed} />
-     |          ^
-  47 |       </main>
-  48 |     </div>
-  49 |   ) {
-  digest: '1857048525'
-}
- GET / 500 in 363ms (compile: 5ms, render: 358ms)
- GET / 200 in 601ms (compile: 168ms, render: 432ms)
- ✓ Compiled in 52ms
- GET / 200 in 287ms (compile: 78ms, render: 209ms)
+ ✓ Ready in 695ms
+[?25h

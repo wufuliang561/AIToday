@@ -1,9 +1,12 @@
+import logging
 import tweepy
 from datetime import datetime, timedelta
 from typing import List
 from app.services.collectors.base import BaseCollector
 from app.models.item import RawItem
 from app.core.config import settings, load_sources_config
+
+logger = logging.getLogger(__name__)
 
 class TwitterCollector(BaseCollector):
     def __init__(self):
@@ -12,7 +15,7 @@ class TwitterCollector(BaseCollector):
 
     async def collect(self) -> List[RawItem]:
         if not self.bearer_token:
-            print("Warning: TWITTER_BEARER_TOKEN not set. (警告：未设置 TWITTER_BEARER_TOKEN。)")
+            logger.warning("TWITTER_BEARER_TOKEN not set; skipping Twitter collection")
             return []
 
         client = tweepy.Client(bearer_token=self.bearer_token)
@@ -36,6 +39,7 @@ class TwitterCollector(BaseCollector):
                 )
                 
                 if not response.data:
+                    logger.info("No tweets found for user %s in last 24h", user.get("username"))
                     continue
 
                 for tweet in response.data:
@@ -60,6 +64,6 @@ class TwitterCollector(BaseCollector):
                     )
                     items.append(raw_item)
             except Exception as e:
-                print(f"Error collecting tweets for user {user_id}: {e}")
+                logger.exception("Error collecting tweets for user %s", user_id)
                 
         return items

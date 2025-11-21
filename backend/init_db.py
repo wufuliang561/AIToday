@@ -12,6 +12,12 @@ from app.models.hotspot import Hotspot
 def init_db():
     print("Creating database tables...")
     try:
+        # Enable pgvector extension
+        with engine.connect() as connection:
+            from sqlalchemy import text
+            connection.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+            connection.commit()
+            
         Base.metadata.create_all(bind=engine)
         print("Tables created successfully!")
     except Exception as e:

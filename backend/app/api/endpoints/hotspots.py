@@ -4,6 +4,7 @@ from typing import List, Optional
 from app.db.session import SessionLocal
 from app.models.hotspot import Hotspot
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 
 router = APIRouter()
 
@@ -27,7 +28,11 @@ class HotspotResponse(BaseModel):
 
 @router.get("/", response_model=List[HotspotResponse])
 def read_hotspots(db: Session = Depends(get_db)):
-    hotspots = db.query(Hotspot).order_by(Hotspot.total_heat_score.desc()).limit(10).all()
+    # 只获取过去 24 小时内的热点
+    since = datetime.utcnow() - timedelta(hours=24)
+    hotspots = db.query(Hotspot).filter(
+        Hotspot.created_at >= since
+    ).order_by(Hotspot.total_heat_score.desc()).limit(10).all()
     
     result = []
     for h in hotspots:

@@ -1,20 +1,56 @@
 version: '3.9'
+
 services:
+  # Database Service
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     container_name: aitoday-postgres
+    restart: always
     environment:
-      POSTGRES_USER: aitoday
-      POSTGRES_PASSWORD: aitoday
-      POSTGRES_DB: aitoday
+      POSTGRES_USER: ${POSTGRES_USER:-aitoday}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aitoday}
+      POSTGRES_DB: ${POSTGRES_DB:-aitoday}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U aitoday"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aitoday}"]
       interval: 5s
       timeout: 5s
       retries: 5
+
+  # Backend Service
+  backend:
+    build: ./backend
+    container_name: aitoday-backend
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_SERVER: postgres
+      POSTGRES_USER: ${POSTGRES_USER:-aitoday}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aitoday}
+      POSTGRES_DB: ${POSTGRES_DB:-aitoday}
+      # Add other environment variables here or use .env file
+      BACKEND_CORS_ORIGINS: '["http://localhost:3000"]'
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/logs:/app/logs
+
+  # Frontend Service
+  frontend:
+    build: ./frontend
+    container_name: aitoday-frontend
+    restart: always
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+    ports:
+      - "3000:3000"
+
 volumes:
   pgdata:

@@ -1,13 +1,17 @@
 ai:
   base_url: https://zenmux.ai/api/v1
   api_key: "sk-ai-v1-1bc3cffa2758cf78a99af5c40a59073d956140b2fc6c08f38a151780680993d3"
-  model: google/gemini-2.5-pro-free
+  model: moonshotai/kimi-k2-thinking
+  vector_base_url: https://ark.cn-beijing.volces.com/api/v3
+  vector_api_key: "8655a315-0938-459e-afcb-b5f67c0f6b67"
+  vector_model: doubao-embedding-text-240715
 
 system:
-  proxy: "http://127.0.0.1:7897" # Set your proxy URL here if needed
+  #proxy: "http://127.0.0.1:7897" # Set your proxy URL here if needed
 
 api_keys:
-  youtube: "AIzaSyD1T0A9MLj_sz9I1iSMgW3ESdvLzOYZl_E"
+  #youtube: "AIzaSyD1T0A9MLj_sz9I1iSMgW3ESdvLzOYZl_E"
+  youtube: "AIzaSyA6eljZUPlfnYCQv71iyGWDTBRdtUbsUoc"
   twitter_bearer_token: ""
   reddit_client_id: "CEbFcSq8_1_u_Dd_NGrEFQ"
   reddit_client_secret: "1MPiHpniQnxSib-3WS7J5JuTyifdPQ"
@@ -21,6 +25,9 @@ database:
   dbname: "aitoday"
 
 youtube:
+  lookback_hours: 12  # 限制时间窗口，降低 search 请求次数
+  max_results: 5      # 每个频道每轮最多抓取 5 条
+  stats_batch_size: 25  # 批量查询视频 statistics，最大 50
   channels:
   - id: "UCXZCJLdBC09xxGZ6gcdrc6A"  # OpenAI
     name: "OpenAI"
@@ -37,20 +44,125 @@ youtube:
     enabled: true
     description: "AI researcher and educator"
   
-  - id: "UCxBcwypKK-W3GHd_RZ9FZrQ"  # Latent Space ✅
-    name: "Latent Space"
-    enabled: true
-    description: "AI engineering and research"
+  # - id: "UCxBcwypKK-W3GHd_RZ9FZrQ"  # Latent Space ✅
+  #   name: "Latent Space"
+  #   enabled: true
+  #   description: "AI engineering and research"
   
-  - id: "UCSI7h9hydQ40K5MJHnCrQvw"  # No Priors ✅
-    name: "No Priors"
-    enabled: true
-    description: "AI, ML, Tech & Startups"
+  # - id: "UCSI7h9hydQ40K5MJHnCrQvw"  # No Priors ✅
+  #   name: "No Priors"
+  #   enabled: true
+  #   description: "AI, ML, Tech & Startups"
   
-  - id: "UCXl4i9dYBrFOabk0xGmbkRA"  # Dwarkesh Podcast ✅
-    name: "Dwarkesh Podcast"
-    enabled: true
-    description: "Deep conversations on AI and tech"
+  # - id: "UCXl4i9dYBrFOabk0xGmbkRA"  # Dwarkesh Podcast ✅
+  #   name: "Dwarkesh Podcast"
+  #   enabled: true
+  #   description: "Deep conversations on AI and tech"
+
+  # - id: "UCKelCK4ZaO6HeEI1KQjqzWA"  # The AI Daily Brief ✅
+  #   name: "The AI Daily Brief"
+  #   enabled: true
+  #   description: "Daily AI news and insights"
+  
+  # # Business & Product Podcasts
+  # - id: "UC6t1O76G0jYXOAoYCm153dA"  # Lenny's Podcast ✅
+  #   name: "Lenny's Podcast"
+  #   enabled: true
+  #   description: "Product management and growth"
+  
+  # - id: "UCnpBg7yqNauHtlNSpOl5-cg"  # Peter Yang ✅
+  #   name: "Peter Yang"
+  #   enabled: true
+  #   description: "Product and tech insights"
+  
+  # - id: "UCaiL2GDNpLAp4Qo4PVklg-w"  # AI Engineers World Fair ✅
+  #   name: "AI Engineers World Fair"
+  #   enabled: true
+  #   description: "AI engineering conference and community"
+  
+  # - id: "UCjIMtrzxYc0lblGhmOgC_CA"  # AI and I by Every ✅
+  #   name: "AI and I by Every"
+  #   enabled: true
+  #   description: "AI在商业中的应用"
+     
+  # - id: "UCLKPca3kwwd-B59HNr-_lvA"  # AI Engineers World Fair ✅
+  #   name: "AI Engineers World Fair"
+  #   enabled: true
+  #   description: "AI工程师大会和社区"
+  
+  # # VC & Investment Podcasts
+  # - id: "UCUl-s_Vp-Kkk_XVyDylNwLA"  # Unsupervised Learning ✅
+  #   name: "Unsupervised Learning (by RedPoint Capital)"
+  #   enabled: true
+  #   description: "AI and ML insights from RedPoint"
+  
+  # - id: "UCWrF0oN6unbXrWsTN7RctTw"  # Training Data ✅
+  #   name: "Training Data (by Sequoia Capital)"
+  #   enabled: true
+  #   description: "AI insights from Sequoia Capital"
+  
+  # - id: "UCMR-rPSUI34DRQXUkvFuIUQ"  # Minus One ✅
+  #   name: "Minus One (by South Park Commons)"
+  #   enabled: true
+  #   description: "Tech and startup insights"
+  
+  # - id: "UC9cn0TuPq4dnbTY-CBsm8XA"  # AI+a16z ✅
+  #   name: "AI+a16z"
+  #   enabled: true
+  #   description: "AI insights from Andreessen Horowitz"
+  
+  # # Y Combinator
+  # - id: "UCcefcZRL2oaA_uBNeo5UOWg"  # Y Combinator ✅
+  #   name: "Y Combinator"
+  #   enabled: true
+  #   description: "Startup accelerator insights"
+  
+  # # Company Channels
+  # - id: "UCrDwWp7EBBv4NwvScIpBDOA"  # Anthropic ✅
+  #   name: "Anthropic"
+  #   enabled: true
+  #   description: "AI safety and research"
+  
+  # - id: "UCP7jMXSY2xbc3KCAE0MHQ-A"  # Google DeepMind ✅
+  #   name: "Google DeepMind: The Podcast"
+  #   enabled: true
+  #   description: "AI research from Google"
+  
+  # - id: "UCM1guA1E-RHLO2OyfQPOkEQ"  # Stripe Sessions ✅
+  #   name: "Stripe Sessions"
+  #   enabled: true
+  #   description: "Stripe developer and business content"
+  
+  # - id: "UCQsVmhSa4X-G3lHlUtejzLA"  # Figma Config ✅
+  #   name: "Figma Config"
+  #   enabled: true
+  #   description: "Design and product insights from Figma"
+  
+  # # Individual Creators
+  # - id: "UCMcoud_ZW7cfxeIugBflSBw"  # Riley Brown ✅
+  #   name: "Riley Brown"
+  #   enabled: true
+  #   description: "AI and tech content"
+  
+  # - id: "UCPjNBjflYl0-HQtUvOx0Ibw"  # Greg Isenberg ✅
+  #   name: "Greg Isenberg"
+  #   enabled: true
+  #   description: "Product and business insights"
+  
+  # - id: "UCBX__dPYqDFqAN4QcWbnUbw"  # Ras Mic ✅
+  #   name: "Ras Mic"
+  #   enabled: true
+  #   description: "Tech and AI discussions"
+  
+  # - id: "UCXZFVVCFahewxr3est7aT7Q"  # Mckay Wrigley ✅
+  #   name: "Mckay Wrigley"
+  #   enabled: true
+  #   description: "AI development and tutorials"
+   
+  # - id: "UCXUPKJO5MZQN11PqgIvyuvQ"  # Andrej Karpathy ✅
+  #   name: "Andrej Karpathy"
+  #   enabled: true
+  #   description: "AI research and education"
 
 twitter:
   users:
@@ -61,16 +173,38 @@ twitter:
 
 reddit:
   subreddits:
-    - "artificial"
-    - "MachineLearning"
-    - "LocalLLaMA"
+    - "StableDiffusion"
+    # - "MachineLearning"
+    # - "LocalLLaMA"
+    # - "LearnMachineLearning"
+    # - "LocalLLaMA"
+    # - "Singularity"
+    # - "Artificial"
 
 rss:
   feeds:
     - url: "https://openai.com/blog/rss.xml"
       name: "OpenAI Blog"
+      max_age_hours: 24
+      base_heat: 70
     - url: "https://research.google/blog/rss"
       name: "Google Research"
-    - url: "https://rss.app/feeds/v1.1/AAPQYwfvRjqTfYsj.json"
-      name: "naval Ai "
+      max_age_hours: 24
+      base_heat: 70
+    - url: "https://rss.app/feeds/AAPQYwfvRjqTfYsj.xml"
+      name: "naval AI"
+    - url: "https://www.reddit.com/r/StableDiffusion/hot.rss"
+      name: "reddit StableDiffusion"
+    - url: "https://www.reddit.com/r/LocalLLaMA/hot.rss"
+      name: "reddit LocalLLaMA"
+    - url: "https://www.reddit.com/r/LocalLLaMA/hot.rss"
+      name: "reddit LocalLLaMA"
+    - url: "https://www.reddit.com/r/Artificial/hot.rss"
+      name: "reddit Artificial"
+    - url: "https://www.reddit.com/r/Singularity/hot.rss"
+      name: "reddit Singularity"
+
+huggingface:
+  base_heat: 80
+  enabled: true
 
