@@ -44,125 +44,125 @@ youtube:
     enabled: true
     description: "AI researcher and educator"
   
-  # - id: "UCxBcwypKK-W3GHd_RZ9FZrQ"  # Latent Space ✅
-  #   name: "Latent Space"
-  #   enabled: true
-  #   description: "AI engineering and research"
+  - id: "UCxBcwypKK-W3GHd_RZ9FZrQ"  # Latent Space ✅
+    name: "Latent Space"
+    enabled: true
+    description: "AI engineering and research"
   
-  # - id: "UCSI7h9hydQ40K5MJHnCrQvw"  # No Priors ✅
-  #   name: "No Priors"
-  #   enabled: true
-  #   description: "AI, ML, Tech & Startups"
+  - id: "UCSI7h9hydQ40K5MJHnCrQvw"  # No Priors ✅
+    name: "No Priors"
+    enabled: true
+    description: "AI, ML, Tech & Startups"
   
-  # - id: "UCXl4i9dYBrFOabk0xGmbkRA"  # Dwarkesh Podcast ✅
-  #   name: "Dwarkesh Podcast"
-  #   enabled: true
-  #   description: "Deep conversations on AI and tech"
+  - id: "UCXl4i9dYBrFOabk0xGmbkRA"  # Dwarkesh Podcast ✅
+    name: "Dwarkesh Podcast"
+    enabled: true
+    description: "Deep conversations on AI and tech"
 
-  # - id: "UCKelCK4ZaO6HeEI1KQjqzWA"  # The AI Daily Brief ✅
-  #   name: "The AI Daily Brief"
-  #   enabled: true
-  #   description: "Daily AI news and insights"
+  - id: "UCKelCK4ZaO6HeEI1KQjqzWA"  # The AI Daily Brief ✅
+    name: "The AI Daily Brief"
+    enabled: true
+    description: "Daily AI news and insights"
   
-  # # Business & Product Podcasts
-  # - id: "UC6t1O76G0jYXOAoYCm153dA"  # Lenny's Podcast ✅
-  #   name: "Lenny's Podcast"
-  #   enabled: true
-  #   description: "Product management and growth"
+  # Business & Product Podcasts
+  - id: "UC6t1O76G0jYXOAoYCm153dA"  # Lenny's Podcast ✅
+    name: "Lenny's Podcast"
+    enabled: true
+    description: "Product management and growth"
   
-  # - id: "UCnpBg7yqNauHtlNSpOl5-cg"  # Peter Yang ✅
-  #   name: "Peter Yang"
-  #   enabled: true
-  #   description: "Product and tech insights"
+  - id: "UCnpBg7yqNauHtlNSpOl5-cg"  # Peter Yang ✅
+    name: "Peter Yang"
+    enabled: true
+    description: "Product and tech insights"
   
-  # - id: "UCaiL2GDNpLAp4Qo4PVklg-w"  # AI Engineers World Fair ✅
-  #   name: "AI Engineers World Fair"
-  #   enabled: true
-  #   description: "AI engineering conference and community"
+  - id: "UCaiL2GDNpLAp4Qo4PVklg-w"  # AI Engineers World Fair ✅
+    name: "AI Engineers World Fair"
+    enabled: true
+    description: "AI engineering conference and community"
   
-  # - id: "UCjIMtrzxYc0lblGhmOgC_CA"  # AI and I by Every ✅
-  #   name: "AI and I by Every"
-  #   enabled: true
-  #   description: "AI在商业中的应用"
+  - id: "UCjIMtrzxYc0lblGhmOgC_CA"  # AI and I by Every ✅
+    name: "AI and I by Every"
+    enabled: true
+    description: "AI在商业中的应用"
      
-  # - id: "UCLKPca3kwwd-B59HNr-_lvA"  # AI Engineers World Fair ✅
-  #   name: "AI Engineers World Fair"
-  #   enabled: true
-  #   description: "AI工程师大会和社区"
+  - id: "UCLKPca3kwwd-B59HNr-_lvA"  # AI Engineers World Fair ✅
+    name: "AI Engineers World Fair"
+    enabled: true
+    description: "AI工程师大会和社区"
   
-  # # VC & Investment Podcasts
-  # - id: "UCUl-s_Vp-Kkk_XVyDylNwLA"  # Unsupervised Learning ✅
-  #   name: "Unsupervised Learning (by RedPoint Capital)"
-  #   enabled: true
-  #   description: "AI and ML insights from RedPoint"
+  # VC & Investment Podcasts
+  - id: "UCUl-s_Vp-Kkk_XVyDylNwLA"  # Unsupervised Learning ✅
+    name: "Unsupervised Learning (by RedPoint Capital)"
+    enabled: true
+    description: "AI and ML insights from RedPoint"
   
-  # - id: "UCWrF0oN6unbXrWsTN7RctTw"  # Training Data ✅
-  #   name: "Training Data (by Sequoia Capital)"
-  #   enabled: true
-  #   description: "AI insights from Sequoia Capital"
+  - id: "UCWrF0oN6unbXrWsTN7RctTw"  # Training Data ✅
+    name: "Training Data (by Sequoia Capital)"
+    enabled: true
+    description: "AI insights from Sequoia Capital"
   
-  # - id: "UCMR-rPSUI34DRQXUkvFuIUQ"  # Minus One ✅
-  #   name: "Minus One (by South Park Commons)"
-  #   enabled: true
-  #   description: "Tech and startup insights"
+  - id: "UCMR-rPSUI34DRQXUkvFuIUQ"  # Minus One ✅
+    name: "Minus One (by South Park Commons)"
+    enabled: true
+    description: "Tech and startup insights"
   
-  # - id: "UC9cn0TuPq4dnbTY-CBsm8XA"  # AI+a16z ✅
-  #   name: "AI+a16z"
-  #   enabled: true
-  #   description: "AI insights from Andreessen Horowitz"
+  - id: "UC9cn0TuPq4dnbTY-CBsm8XA"  # AI+a16z ✅
+    name: "AI+a16z"
+    enabled: true
+    description: "AI insights from Andreessen Horowitz"
   
-  # # Y Combinator
-  # - id: "UCcefcZRL2oaA_uBNeo5UOWg"  # Y Combinator ✅
-  #   name: "Y Combinator"
-  #   enabled: true
-  #   description: "Startup accelerator insights"
+  # Y Combinator
+  - id: "UCcefcZRL2oaA_uBNeo5UOWg"  # Y Combinator ✅
+    name: "Y Combinator"
+    enabled: true
+    description: "Startup accelerator insights"
   
-  # # Company Channels
-  # - id: "UCrDwWp7EBBv4NwvScIpBDOA"  # Anthropic ✅
-  #   name: "Anthropic"
-  #   enabled: true
-  #   description: "AI safety and research"
+  # Company Channels
+  - id: "UCrDwWp7EBBv4NwvScIpBDOA"  # Anthropic ✅
+    name: "Anthropic"
+    enabled: true
+    description: "AI safety and research"
   
-  # - id: "UCP7jMXSY2xbc3KCAE0MHQ-A"  # Google DeepMind ✅
-  #   name: "Google DeepMind: The Podcast"
-  #   enabled: true
-  #   description: "AI research from Google"
+  - id: "UCP7jMXSY2xbc3KCAE0MHQ-A"  # Google DeepMind ✅
+    name: "Google DeepMind: The Podcast"
+    enabled: true
+    description: "AI research from Google"
   
-  # - id: "UCM1guA1E-RHLO2OyfQPOkEQ"  # Stripe Sessions ✅
-  #   name: "Stripe Sessions"
-  #   enabled: true
-  #   description: "Stripe developer and business content"
+  - id: "UCM1guA1E-RHLO2OyfQPOkEQ"  # Stripe Sessions ✅
+    name: "Stripe Sessions"
+    enabled: true
+    description: "Stripe developer and business content"
   
-  # - id: "UCQsVmhSa4X-G3lHlUtejzLA"  # Figma Config ✅
-  #   name: "Figma Config"
-  #   enabled: true
-  #   description: "Design and product insights from Figma"
+  - id: "UCQsVmhSa4X-G3lHlUtejzLA"  # Figma Config ✅
+    name: "Figma Config"
+    enabled: true
+    description: "Design and product insights from Figma"
   
-  # # Individual Creators
-  # - id: "UCMcoud_ZW7cfxeIugBflSBw"  # Riley Brown ✅
-  #   name: "Riley Brown"
-  #   enabled: true
-  #   description: "AI and tech content"
+  # Individual Creators
+  - id: "UCMcoud_ZW7cfxeIugBflSBw"  # Riley Brown ✅
+    name: "Riley Brown"
+    enabled: true
+    description: "AI and tech content"
   
-  # - id: "UCPjNBjflYl0-HQtUvOx0Ibw"  # Greg Isenberg ✅
-  #   name: "Greg Isenberg"
-  #   enabled: true
-  #   description: "Product and business insights"
+  - id: "UCPjNBjflYl0-HQtUvOx0Ibw"  # Greg Isenberg ✅
+    name: "Greg Isenberg"
+    enabled: true
+    description: "Product and business insights"
   
-  # - id: "UCBX__dPYqDFqAN4QcWbnUbw"  # Ras Mic ✅
-  #   name: "Ras Mic"
-  #   enabled: true
-  #   description: "Tech and AI discussions"
+  - id: "UCBX__dPYqDFqAN4QcWbnUbw"  # Ras Mic ✅
+    name: "Ras Mic"
+    enabled: true
+    description: "Tech and AI discussions"
   
-  # - id: "UCXZFVVCFahewxr3est7aT7Q"  # Mckay Wrigley ✅
-  #   name: "Mckay Wrigley"
-  #   enabled: true
-  #   description: "AI development and tutorials"
+  - id: "UCXZFVVCFahewxr3est7aT7Q"  # Mckay Wrigley ✅
+    name: "Mckay Wrigley"
+    enabled: true
+    description: "AI development and tutorials"
    
-  # - id: "UCXUPKJO5MZQN11PqgIvyuvQ"  # Andrej Karpathy ✅
-  #   name: "Andrej Karpathy"
-  #   enabled: true
-  #   description: "AI research and education"
+  - id: "UCXUPKJO5MZQN11PqgIvyuvQ"  # Andrej Karpathy ✅
+    name: "Andrej Karpathy"
+    enabled: true
+    description: "AI research and education"
 
 twitter:
   users:
