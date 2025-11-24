@@ -1,6 +1,6 @@
 INFO:     Will watch for changes in these directories: ['/Users/xc/my/AIToday/backend']
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [86050] using StatReload
+INFO:     Started reloader process [5938] using StatReload
 /Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/pydantic/_internal/_config.py:383: UserWarning: Valid config keys have changed in V2:
 * 'orm_mode' has been renamed to 'from_attributes'
   warnings.warn(message, UserWarning)
@@ -9,45 +9,111 @@ INFO:     Started reloader process [86050] using StatReload
   warnings.warn(message, UserWarning)
 /Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/google/api_core/_python_version_support.py:266: FutureWarning: You are using a Python version (3.10.17) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
   warnings.warn(message, FutureWarning)
-Loading DB config from sources.yaml: localhost
-2025-11-21 22:11:42,348 | INFO | app.core.logging_config:52 | Logging initialized at INFO, writing to /Users/xc/my/AIToday/backend/logs/backend.log
-2025-11-21 22:11:42,360 | WARNING | app.main:39 | Could not create tables on startup: (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-connection to server at "localhost" (127.0.0.1), port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
+Loading DB config from /Users/xc/my/AIToday/backend/sources.yaml: localhost
+2025-11-22 18:23:18,508 | INFO | app.core.logging_config:52 | Logging initialized at INFO, writing to /Users/xc/my/AIToday/backend/logs/backend.log
+2025-11-22 18:23:18,759 | INFO | uvicorn.error:84 | Started server process [5986]
+2025-11-22 18:23:18,760 | INFO | uvicorn.error:48 | Waiting for application startup.
+2025-11-22 18:23:18,760 | INFO | apscheduler.scheduler:507 | Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-11-22 18:23:18,775 | INFO | apscheduler.scheduler:507 | Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-11-22 18:23:18,775 | INFO | apscheduler.scheduler:507 | Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-11-22 18:23:18,776 | INFO | apscheduler.scheduler:1090 | Added job "run_rss_task" to job store "default"
+2025-11-22 18:23:18,776 | INFO | apscheduler.scheduler:1090 | Added job "run_youtube_task" to job store "default"
+2025-11-22 18:23:18,776 | INFO | apscheduler.scheduler:1090 | Added job "run_huggingface_task" to job store "default"
+2025-11-22 18:23:18,776 | INFO | apscheduler.scheduler:214 | Scheduler started
+2025-11-22 18:23:18,776 | INFO | app.main:156 | Scheduler started (timezone=Asia/Shanghai). RSS every 2h, YouTube daily at 08:00/20:00, Hugging Face daily at 09:00. First run executes immediately on startup.
+2025-11-22 18:23:18,776 | INFO | uvicorn.error:62 | Application startup complete.
+2025-11-22 18:23:18,776 | INFO | apscheduler.executors.default:179 | Running job "run_huggingface_task (trigger: cron[hour='9', minute='0'], next run at: 2025-11-23 09:00:00 CST)" (scheduled at 2025-11-22 18:23:18.760386+08:00)
+2025-11-22 18:23:18,782 | INFO | app.main:44 | [Hugging Face Task] Starting pipeline with 1 collectors
+2025-11-22 18:23:18,816 | INFO | app.main:53 | [Hugging Face Task] Collector HuggingFaceCollector started
+2025-11-22 18:23:18,816 | INFO | app.services.collectors.huggingface:17 | Starting Hugging Face Daily Papers collection...
+2025-11-22 18:23:18,833 | INFO | apscheduler.executors.default:179 | Running job "run_rss_task (trigger: interval[2:00:00], next run at: 2025-11-22 20:23:18 CST)" (scheduled at 2025-11-22 18:23:18.760386+08:00)
+2025-11-22 18:23:18,839 | INFO | app.main:44 | [RSS Task] Starting pipeline with 1 collectors
+2025-11-22 18:23:18,880 | INFO | app.main:53 | [RSS Task] Collector RSSCollector started
+2025-11-22 18:23:18,881 | INFO | app.services.collectors.rss:18 | Starting RSS collection...
+2025-11-22 18:23:18,881 | INFO | app.services.collectors.rss:21 | Found 8 RSS feeds to process.
+2025-11-22 18:23:20,440 | INFO | app.services.collectors.rss:32 | Collected 745 entries from RSS feed: OpenAI Blog (https://openai.com/blog/rss.xml)
+2025-11-22 18:23:22,859 | INFO | app.services.collectors.rss:32 | Collected 100 entries from RSS feed: Google Research (https://research.google/blog/rss)
+2025-11-22 18:23:23,450 | INFO | app.services.collectors.rss:32 | Collected 25 entries from RSS feed: naval AI (https://rss.app/feeds/AAPQYwfvRjqTfYsj.xml)
+2025-11-22 18:23:24,160 | INFO | app.services.collectors.rss:32 | Collected 0 entries from RSS feed: reddit StableDiffusion (https://www.reddit.com/r/StableDiffusion/hot.rss)
+2025-11-22 18:23:24,878 | INFO | app.services.collectors.rss:32 | Collected 0 entries from RSS feed: reddit LocalLLaMA (https://www.reddit.com/r/LocalLLaMA/hot.rss)
+2025-11-22 18:23:25,578 | INFO | app.services.collectors.rss:32 | Collected 0 entries from RSS feed: reddit LocalLLaMA (https://www.reddit.com/r/LocalLLaMA/hot.rss)
+2025-11-22 18:23:26,286 | INFO | app.services.collectors.rss:32 | Collected 0 entries from RSS feed: reddit Artificial (https://www.reddit.com/r/Artificial/hot.rss)
+2025-11-22 18:23:27,398 | INFO | app.services.collectors.rss:32 | Collected 0 entries from RSS feed: reddit Singularity (https://www.reddit.com/r/Singularity/hot.rss)
+2025-11-22 18:23:27,398 | INFO | app.services.collectors.rss:69 | RSS collection complete. Total items: 26
+2025-11-22 18:23:27,398 | INFO | app.main:55 | [RSS Task] Collector RSSCollector finished, pulled 26 items
+2025-11-22 18:23:38,350 | INFO | httpx:1025 | HTTP Request: POST https://zenmux.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2025-11-22 18:23:38,368 | INFO | app.services.processor:33 | Processing item https://research.google/blog/reducing-ev-range-anxiety-how-a-simple-ai-model-predicts-port-availability/ (rss) with single LLM call
+2025-11-22 18:24:20,228 | INFO | httpx:1025 | HTTP Request: POST https://zenmux.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2025-11-22 18:24:20,235 | INFO | app.services.processor:67 | Generating embedding for item https://research.google/blog/reducing-ev-range-anxiety-how-a-simple-ai-model-predicts-port-availability/
+2025-11-22 18:24:20,453 | INFO | httpx:1025 | HTTP Request: POST https://ark.cn-beijing.volces.com/api/v3/embeddings "HTTP/1.1 200 OK"
+2025-11-22 18:24:20,468 | ERROR | app.main:105 | [RSS Task] Error saving item (source_id=https://research.google/blog/reducing-ev-range-anxiety-how-a-simple-ai-model-predicts-port-availability/)
+Traceback (most recent call last):
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 951, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.OperationalError: server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
 
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/xc/my/AIToday/backend/app/main.py", line 87, in execute_collector_pipeline
+    db.commit()
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 2030, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 1311, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 1286, in _prepare_impl
+    self.session.flush()
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 4331, in flush
+    self._flush(objects)
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 4466, in _flush
+    with util.safe_reraise():
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/util/langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 4427, in _flush
+    flush_context.execute()
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1419, in execute
+    return meth(
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/sql/elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 2355, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 951, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+[SQL: INSERT INTO raw_items (source_platform, source_id, original_title, original_text, title_cn, summary_cn, url, category, author_name, published_at, heat_score, cluster_id, embedding) VALUES (%(source_platform)s, %(source_id)s, %(original_title)s, %(original_text)s, %(title_cn)s, %(summary_cn)s, %(url)s, %(category)s, %(author_name)s, %(published_at)s, %(heat_score)s, %(cluster_id)s, %(embedding)s) RETURNING raw_items.id, raw_items.created_at]
+[parameters: {'source_platform': 'rss', 'source_id': 'https://research.google/blog/reducing-ev-range-anxiety-how-a-simple-ai-model-predicts-port-availability/', 'original_title': 'Reducing EV range anxiety: How a simple AI model predicts port availability', 'original_text': 'Algorithms & Theory', 'title_cn': '缓解EV里程焦虑：简单AI模型预测充电桩可用性', 'summary_cn': '简单AI模型可预测充电桩可用性，帮助缓解电动汽车里程焦虑。', 'url': 'https://research.google/blog/reducing-ev-range-anxiety-how-a-simple-ai-model-predicts-port-availability/', 'category': '行业新闻', 'author_name': None, 'published_at': datetime.datetime(2025, 11, 21, 16, 27), 'heat_score': 70.0, 'cluster_id': None, 'embedding': '[1.3203125,-1.4140625,-4.40625,-6.1875,-3.0,1.4296875,2.046875,-2.84375,2.859375,0.51171875,5.0625,1.5078125,4.34375,2.8125,0.796875,2.8125,-0.474609 ... (23722 characters truncated) ... 5,-0.166015625,1.203125,1.3203125,-1.0703125,1.671875,0.439453125,1.8125,-1.4921875,-3.375,2.71875,0.875,1.171875,-0.828125,-0.12451171875,1.6640625]'}]
 (Background on this error at: https://sqlalche.me/e/20/e3q8)
-2025-11-21 22:11:42,363 | INFO | uvicorn.error:84 | Started server process [86081]
-2025-11-21 22:11:42,363 | INFO | uvicorn.error:48 | Waiting for application startup.
-2025-11-21 22:11:42,363 | INFO | apscheduler.scheduler:507 | Adding job tentatively -- it will be properly scheduled when the scheduler starts
-2025-11-21 22:11:42,365 | INFO | apscheduler.scheduler:507 | Adding job tentatively -- it will be properly scheduled when the scheduler starts
-2025-11-21 22:11:42,365 | INFO | apscheduler.scheduler:507 | Adding job tentatively -- it will be properly scheduled when the scheduler starts
-2025-11-21 22:11:42,365 | INFO | apscheduler.scheduler:1090 | Added job "run_rss_task" to job store "default"
-2025-11-21 22:11:42,365 | INFO | apscheduler.scheduler:1090 | Added job "run_youtube_task" to job store "default"
-2025-11-21 22:11:42,366 | INFO | apscheduler.scheduler:1090 | Added job "run_huggingface_task" to job store "default"
-2025-11-21 22:11:42,366 | INFO | apscheduler.scheduler:214 | Scheduler started
-2025-11-21 22:11:42,366 | INFO | app.main:156 | Scheduler started (timezone=Asia/Shanghai). RSS every 2h, YouTube daily at 08:00/20:00, Hugging Face daily at 09:00. First run executes immediately on startup.
-2025-11-21 22:11:42,366 | INFO | uvicorn.error:62 | Application startup complete.
-2025-11-21 22:11:42,366 | INFO | apscheduler.executors.default:179 | Running job "run_huggingface_task (trigger: cron[hour='9', minute='0'], next run at: 2025-11-22 09:00:00 CST)" (scheduled at 2025-11-21 22:11:42.363400+08:00)
-2025-11-21 22:11:42,370 | INFO | app.main:44 | [Hugging Face Task] Starting pipeline with 1 collectors
-2025-11-21 22:11:42,408 | INFO | app.main:53 | [Hugging Face Task] Collector HuggingFaceCollector started
-2025-11-21 22:11:42,408 | INFO | app.services.collectors.huggingface:17 | Starting Hugging Face Daily Papers collection...
-2025-11-21 22:11:42,438 | INFO | apscheduler.executors.default:179 | Running job "run_rss_task (trigger: interval[2:00:00], next run at: 2025-11-22 00:11:42 CST)" (scheduled at 2025-11-21 22:11:42.363400+08:00)
-2025-11-21 22:11:42,443 | INFO | app.main:44 | [RSS Task] Starting pipeline with 1 collectors
-2025-11-21 22:11:42,481 | INFO | app.main:53 | [RSS Task] Collector RSSCollector started
-2025-11-21 22:11:42,481 | INFO | app.services.collectors.rss:16 | Starting RSS collection...
-2025-11-21 22:11:42,481 | INFO | app.services.collectors.rss:19 | Found 8 RSS feeds to process.
-2025-11-21 22:11:44,205 | INFO | app.services.collectors.rss:29 | Collected 745 entries from RSS feed: OpenAI Blog (https://openai.com/blog/rss.xml)
-2025-11-21 22:11:46,600 | INFO | app.services.collectors.rss:29 | Collected 100 entries from RSS feed: Google Research (https://research.google/blog/rss)
-2025-11-21 22:11:47,714 | INFO | app.services.collectors.rss:29 | Collected 25 entries from RSS feed: naval AI (https://rss.app/feeds/AAPQYwfvRjqTfYsj.xml)
-2025-11-21 22:11:48,899 | INFO | app.services.collectors.rss:29 | Collected 0 entries from RSS feed: reddit StableDiffusion (https://www.reddit.com/r/StableDiffusion/hot.rss)
-2025-11-21 22:11:50,336 | INFO | app.services.collectors.rss:29 | Collected 0 entries from RSS feed: reddit LocalLLaMA (https://www.reddit.com/r/LocalLLaMA/hot.rss)
-2025-11-21 22:11:51,539 | INFO | app.services.collectors.rss:29 | Collected 0 entries from RSS feed: reddit LocalLLaMA (https://www.reddit.com/r/LocalLLaMA/hot.rss)
-2025-11-21 22:11:53,264 | INFO | app.services.collectors.rss:29 | Collected 0 entries from RSS feed: reddit Artificial (https://www.reddit.com/r/Artificial/hot.rss)
-2025-11-21 22:11:54,484 | INFO | app.services.collectors.rss:29 | Collected 0 entries from RSS feed: reddit Singularity (https://www.reddit.com/r/Singularity/hot.rss)
-2025-11-21 22:11:54,484 | INFO | app.services.collectors.rss:76 | RSS collection complete. Total items: 26
-2025-11-21 22:11:54,484 | INFO | app.main:55 | [RSS Task] Collector RSSCollector finished, pulled 26 items
-2025-11-21 22:11:54,507 | ERROR | apscheduler.executors.default:195 | Job "run_rss_task (trigger: interval[2:00:00], next run at: 2025-11-22 00:11:42 CST)" raised an exception
+2025-11-22 18:24:20,479 | ERROR | apscheduler.executors.default:195 | Job "run_rss_task (trigger: interval[2:00:00], next run at: 2025-11-22 20:23:18 CST)" raised an exception
 Traceback (most recent call last):
   File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 143, in __init__
     self._dbapi_connection = engine.raw_connection()
@@ -57,17 +123,13 @@ Traceback (most recent call last):
     return _ConnectionFairy._checkout(self)
   File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 1264, in _checkout
     fairy = _ConnectionRecord.checkout(pool)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 711, in checkout
-    rec = pool._do_get()
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/impl.py", line 177, in _do_get
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 716, in checkout
     with util.safe_reraise():
   File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/util/langhelpers.py", line 224, in __exit__
     raise exc_value.with_traceback(exc_tb)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/impl.py", line 175, in _do_get
-    return self._create_connection()
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 388, in _create_connection
-    return _ConnectionRecord(self)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 673, in __init__
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 714, in checkout
+    dbapi_connection = rec.get_connection()
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 836, in get_connection
     self.__connect()
   File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 899, in __connect
     with util.safe_reraise():
@@ -125,17 +187,13 @@ Traceback (most recent call last):
     return _ConnectionFairy._checkout(self)
   File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 1264, in _checkout
     fairy = _ConnectionRecord.checkout(pool)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 711, in checkout
-    rec = pool._do_get()
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/impl.py", line 177, in _do_get
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 716, in checkout
     with util.safe_reraise():
   File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/util/langhelpers.py", line 224, in __exit__
     raise exc_value.with_traceback(exc_tb)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/impl.py", line 175, in _do_get
-    return self._create_connection()
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 388, in _create_connection
-    return _ConnectionRecord(self)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 673, in __init__
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 714, in checkout
+    dbapi_connection = rec.get_connection()
+  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 836, in get_connection
     self.__connect()
   File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 899, in __connect
     with util.safe_reraise():
@@ -155,122 +213,5 @@ connection to server at "localhost" (127.0.0.1), port 5432 failed: Connection re
 	Is the server running on that host and accepting TCP/IP connections?
 
 (Background on this error at: https://sqlalche.me/e/20/e3q8)
-2025-11-21 22:11:54,517 | WARNING | apscheduler.executors.default:176 | Run time of job "run_youtube_task (trigger: cron[hour='8,20', minute='0'], next run at: 2025-11-22 08:00:00 CST)" was missed by 0:00:12.154402
-2025-11-21 22:11:55,483 | INFO | httpx:1740 | HTTP Request: GET https://huggingface.co/api/daily_papers?date=2025-11-21 "HTTP/1.1 200 OK"
-2025-11-21 22:11:55,757 | INFO | app.services.collectors.huggingface:35 | Collected 16 papers from Hugging Face for date: 2025-11-21
-2025-11-21 22:11:55,758 | INFO | app.services.collectors.huggingface:70 | Hugging Face collection complete. Total items: 16
-2025-11-21 22:11:55,763 | INFO | app.main:55 | [Hugging Face Task] Collector HuggingFaceCollector finished, pulled 16 items
-2025-11-21 22:11:55,768 | ERROR | apscheduler.executors.default:195 | Job "run_huggingface_task (trigger: cron[hour='9', minute='0'], next run at: 2025-11-22 09:00:00 CST)" raised an exception
-Traceback (most recent call last):
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 143, in __init__
-    self._dbapi_connection = engine.raw_connection()
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 3301, in raw_connection
-    return self.pool.connect()
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 447, in connect
-    return _ConnectionFairy._checkout(self)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 1264, in _checkout
-    fairy = _ConnectionRecord.checkout(pool)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 711, in checkout
-    rec = pool._do_get()
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/impl.py", line 177, in _do_get
-    with util.safe_reraise():
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/util/langhelpers.py", line 224, in __exit__
-    raise exc_value.with_traceback(exc_tb)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/impl.py", line 175, in _do_get
-    return self._create_connection()
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 388, in _create_connection
-    return _ConnectionRecord(self)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 673, in __init__
-    self.__connect()
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 899, in __connect
-    with util.safe_reraise():
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/util/langhelpers.py", line 224, in __exit__
-    raise exc_value.with_traceback(exc_tb)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 895, in __connect
-    self.dbapi_connection = connection = pool._invoke_creator(self)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/create.py", line 661, in connect
-    return dialect.connect(*cargs, **cparams)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 629, in connect
-    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
-    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
-psycopg2.OperationalError: connection to server at "localhost" (::1), port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-connection to server at "localhost" (127.0.0.1), port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/apscheduler/executors/base.py", line 181, in run_coroutine_job
-    retval = await job.func(*job.args, **job.kwargs)
-  File "/Users/xc/my/AIToday/backend/app/main.py", line 123, in run_huggingface_task
-    await execute_collector_pipeline("Hugging Face Task", [HuggingFaceCollector()])
-  File "/Users/xc/my/AIToday/backend/app/main.py", line 66, in execute_collector_pipeline
-    existing = db.query(RawItem).filter(RawItem.source_id == item.source_id).first()
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/query.py", line 2759, in first
-    return self.limit(1)._iter().first()  # type: ignore
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/query.py", line 2857, in _iter
-    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 2351, in execute
-    return self._execute_internal(
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 2239, in _execute_internal
-    conn = self._connection_for_bind(bind)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 2108, in _connection_for_bind
-    return trans._connection_for_bind(engine, execution_options)
-  File "<string>", line 2, in _connection_for_bind
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
-    ret_value = fn(self, *arg, **kw)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 1187, in _connection_for_bind
-    conn = bind.connect()
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 3277, in connect
-    return self._connection_cls(self)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 145, in __init__
-    Connection._handle_dbapi_exception_noconnection(
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 2440, in _handle_dbapi_exception_noconnection
-    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 143, in __init__
-    self._dbapi_connection = engine.raw_connection()
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 3301, in raw_connection
-    return self.pool.connect()
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 447, in connect
-    return _ConnectionFairy._checkout(self)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 1264, in _checkout
-    fairy = _ConnectionRecord.checkout(pool)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 711, in checkout
-    rec = pool._do_get()
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/impl.py", line 177, in _do_get
-    with util.safe_reraise():
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/util/langhelpers.py", line 224, in __exit__
-    raise exc_value.with_traceback(exc_tb)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/impl.py", line 175, in _do_get
-    return self._create_connection()
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 388, in _create_connection
-    return _ConnectionRecord(self)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 673, in __init__
-    self.__connect()
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 899, in __connect
-    with util.safe_reraise():
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/util/langhelpers.py", line 224, in __exit__
-    raise exc_value.with_traceback(exc_tb)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 895, in __connect
-    self.dbapi_connection = connection = pool._invoke_creator(self)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/create.py", line 661, in connect
-    return dialect.connect(*cargs, **cparams)
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 629, in connect
-    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
-  File "/Users/xc/my/AIToday/.venv/lib/python3.10/site-packages/psycopg2/__init__.py", line 122, in connect
-    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
-sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-connection to server at "localhost" (127.0.0.1), port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-
-(Background on this error at: https://sqlalche.me/e/20/e3q8)
-2025-11-21 22:14:09,963 | INFO | uvicorn.error:264 | Shutting down
-2025-11-21 22:14:10,068 | INFO | uvicorn.error:67 | Waiting for application shutdown.
-2025-11-21 22:14:10,069 | INFO | apscheduler.scheduler:245 | Scheduler has been shut down
-2025-11-21 22:14:10,069 | INFO | uvicorn.error:76 | Application shutdown complete.
-2025-11-21 22:14:10,069 | INFO | uvicorn.error:94 | Finished server process [86081]
-INFO:     Stopping reloader process [86050]
+2025-11-22 18:24:20,482 | WARNING | apscheduler.executors.default:176 | Run time of job "run_youtube_task (trigger: cron[hour='8,20', minute='0'], next run at: 2025-11-22 20:00:00 CST)" was missed by 0:01:01.722547
+INFO:     Stopping reloader process [5938]
