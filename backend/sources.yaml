@@ -193,6 +193,7 @@ rss:
       base_heat: 70
     - url: "https://rss.app/feeds/AAPQYwfvRjqTfYsj.xml"
       name: "naval AI"
+      type: "rss_twitter"
     - url: "https://www.reddit.com/r/StableDiffusion/hot.rss"
       name: "reddit StableDiffusion"
     - url: "https://www.reddit.com/r/LocalLLaMA/hot.rss"
@@ -207,4 +208,3 @@ rss:
 huggingface:
   base_heat: 80
   enabled: true
-

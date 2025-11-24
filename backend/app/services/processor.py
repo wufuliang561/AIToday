@@ -1,5 +1,6 @@
 import logging
-from typing import Optional
+import json
+from typing import Dict, Optional
 from openai import OpenAI
 from app.core.config import settings
 from app.models.item import RawItem
@@ -17,7 +18,7 @@ class Processor:
 
     async def process_item(self, item: RawItem) -> Optional[RawItem]:
         """
-        将标题翻译成中文，并在需要时进行总结。
+        将翻译、摘要、分类合并为一次 LLM 调用；提示词根据来源定制。
         """
         if not self.client:
             logger.warning("OpenAI client not initialized; falling back to original title")
@@ -29,83 +30,29 @@ class Processor:
             return None
 
         try:
-            # 翻译标题
-            logger.info("Translating item %s from %s", item.source_id, item.source_platform)
+            logger.info(
+                "Processing item %s (%s) with single LLM call",
+                item.source_id,
+                item.source_platform,
+            )
             response = self.client.chat.completions.create(
                 model=self.model,
-                messages=[
-                    {"role": "system", "content": "You are a professional tech translator. Translate the following text to Chinese. Rules:\n1. Keep technical terms (e.g., Gemini, GPT, LLM, Transformer, CUDA) in English.\n2. Do not translate proper nouns or product names (e.g., Apple, Google, OpenAI).\n3. Ensure the translation is natural and professional.\nOnly return the translated text."},
-                    {"role": "user", "content": item.original_title}
-                ]
+                messages=self._build_messages(item),
             )
-            item.title_cn = response.choices[0].message.content.strip()
+            parsed = self._parse_structured_output(response.choices[0].message.content)
 
-            # 总结和分类
-            if item.source_platform == "x" or (item.original_text and len(item.original_text) > 200):
-                categories_str = ", ".join(settings.NEWS_CATEGORIES)
-                prompt = f"""
-                Task 1: Summarize the following text into a single Chinese sentence.
-                Task 2: Categorize the text into one of the following categories: {categories_str}.
-                
-                Output format:
-                Summary: [Your summary here]
-                Category: [One of the categories]
-                
-                Text:
-                {item.original_text or item.original_title}
-                """
-                
-                logger.info("Summarizing and categorizing item %s", item.source_id)
-                summary_response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=[
-                        {"role": "system", "content": "You are a helpful assistant. Follow the output format strictly."},
-                        {"role": "user", "content": prompt}
-                    ]
-                )
-                content = summary_response.choices[0].message.content.strip()
-                
-                # 解析响应
-                summary = ""
-                category = "其他"
-                
-                for line in content.split('\n'):
-                    if line.startswith("Summary:"):
-                        summary = line.replace("Summary:", "").strip()
-                    elif line.startswith("Category:"):
-                        cat = line.replace("Category:", "").strip()
-                        if cat in settings.NEWS_CATEGORIES:
-                            category = cat
-                            
-                item.summary_cn = summary
+            item.title_cn = parsed.get("title_cn") or item.original_title
+            item.summary_cn = parsed.get("summary_cn") or ""
+            category = parsed.get("category")
+            if category in settings.NEWS_CATEGORIES:
                 item.category = category
             else:
-                # 对于简短的内容，仅根据标题进行分类
-                categories_str = ", ".join(settings.NEWS_CATEGORIES)
-                prompt = f"""
-                Categorize the following title into one of these categories: {categories_str}.
-                Return ONLY the category name.
-                
-                Title: {item.title_cn}
-                """
-                
-                logger.info("Classifying short item %s", item.source_id)
-                cat_response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=[
-                        {"role": "system", "content": "You are a classifier. Return only the category name."},
-                        {"role": "user", "content": prompt}
-                    ]
-                )
-                category = cat_response.choices[0].message.content.strip()
-                if category in settings.NEWS_CATEGORIES:
-                    item.category = category
-                else:
-                    item.category = "其他"
-            
+                item.category = "其他"
+
         except Exception as e:
             logger.exception("Error processing item %s", item.id or item.source_id)
             item.title_cn = item.original_title # 回退
+            item.category = item.category or "其他"
 
         # 生成向量
         try:
@@ -123,6 +70,95 @@ class Processor:
             logger.exception("Error generating embedding for item %s", item.id or item.source_id)
 
         return item
+
+    def _build_messages(self, item: RawItem):
+        """根据来源构造一次性翻译/摘要/分类的提示词。"""
+        categories_str = ", ".join(settings.NEWS_CATEGORIES)
+        source = (item.source_platform or "rss").lower()
+        system_prompt = (
+            "You are a bilingual tech editor. Translate to professional Chinese, keep AI/tech terms in English, "
+            "respect proper nouns, and return compact, factual outputs."
+        )
+
+        source_prompts: Dict[str, str] = {
+            "x": (
+                "来源：Twitter/X 推文\n"
+                "重点：保留账号/话题/模型名，捕捉核心观点或更新。"
+            ),
+            "youtube": (
+                "来源：YouTube 视频\n"
+                "重点：结合标题与描述抓取核心主题（发布/演示/评测/访谈），突出关键信息。"
+            ),
+            "huggingface": (
+                "来源：HuggingFace Daily Papers\n"
+                "重点：科研论文，提炼方法/贡献/结果，保持学术语气。"
+            ),
+            "reddit": (
+                "来源：Reddit 帖子\n"
+                "重点：社区讨论或分享，提炼观点或结论，避免主观臆测。"
+            ),
+            "rss": (
+                "来源：RSS 新闻/博客\n"
+                "重点：新闻或官方博文，保持客观、精简表述。"
+            ),
+        }
+
+        source_header = source_prompts.get(source, source_prompts["rss"])
+        content_body = item.original_text or ""
+
+        user_prompt = f"""
+{source_header}
+
+输入：
+Title: {item.original_title}
+Body: {content_body}
+
+任务（一次性完成）：
+1) 翻译 Title 为中文标题，保留专有名词与产品名。
+2) 生成一句中文摘要（若正文为空，可基于标题）。
+3) 从下列分类中选 1 个：{categories_str}。
+
+输出格式（严格按行，不要额外文本、不要 Markdown）：
+Title: <中文标题>
+Summary: <中文摘要>
+Category: <分类名称>
+"""
+        return [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ]
+
+    def _parse_structured_output(self, content: str) -> Dict[str, str]:
+        """
+        解析 LLM 返回的 Title/Summary/Category 行，兼容 JSON 回退。
+        """
+        if not content:
+            return {}
+
+        # 优先尝试 JSON 解析
+        try:
+            data = json.loads(content)
+            return {
+                "title_cn": data.get("title") or data.get("title_cn"),
+                "summary_cn": data.get("summary") or data.get("summary_cn"),
+                "category": data.get("category"),
+            }
+        except Exception:
+            pass
+
+        title_cn = ""
+        summary_cn = ""
+        category = ""
+        for line in content.splitlines():
+            line = line.strip()
+            if line.lower().startswith("title:"):
+                title_cn = line.split(":", 1)[1].strip()
+            elif line.lower().startswith("summary:"):
+                summary_cn = line.split(":", 1)[1].strip()
+            elif line.lower().startswith("category:"):
+                category = line.split(":", 1)[1].strip()
+
+        return {"title_cn": title_cn, "summary_cn": summary_cn, "category": category}
 
     def _is_ai_related(self, item: RawItem) -> bool:
         """Use the LLM to determine whether the content is AI-related."""
