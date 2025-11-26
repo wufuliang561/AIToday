@@ -4,6 +4,8 @@ import { NewsCard } from "@/components/feed/NewsCard"
 import FeedSection from "@/components/feed/FeedSection"
 import { Header } from "@/components/layout/Header"
 
+export const dynamic = 'force-dynamic'
+
 export default async function Home() {
   const hotspots = await getHotspots()
   const feed = await getFeed()
