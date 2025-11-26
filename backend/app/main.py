@@ -153,7 +153,7 @@ async def lifespan(app: FastAPI):
     scheduler.add_job(
         run_rss_task,
         'interval',
-        hours="5",
+        hours=5,
         id="rss_collection",
         replace_existing=True,
     )
