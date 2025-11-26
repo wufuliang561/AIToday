@@ -15,7 +15,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aitoday}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aitoday}" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -48,7 +48,8 @@ services:
     depends_on:
       - backend
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+      NEXT_PUBLIC_API_URL: http://192.210.150.82/api/v1
+      INTERNAL_API_URL: http://backend:8000/api/v1
     ports:
       - "3000:3000"
 

@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://192.210.150.82/api/v1";
+const isServer = typeof window === 'undefined';
+const API_BASE_URL = isServer
+    ? (process.env.INTERNAL_API_URL || "http://backend:8000/api/v1")
+    : (process.env.NEXT_PUBLIC_API_URL || "http://192.210.150.82/api/v1");
 
 const apiClient = axios.create({
     baseURL: API_BASE_URL,
