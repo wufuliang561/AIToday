@@ -14,15 +14,12 @@ class ClusteringService:
         self.db = db
         self.processor = Processor()
         self.similarity_threshold = 0.85
-        self.high_heat_threshold = 80.0
-        self.min_sources = 2
         self.min_cluster_size = 2
 
     async def cluster_items(self):
         """
         使用向量余弦相似度将条目聚为热点。
-        满足“>=2 个不同来源且相似度 > 0.85”的组合会生成热点，
-        如果单条热度极高（>=80）也会落入热点。
+        取近 24 小时未归档的条目，按相似度聚簇后按簇大小排序，选前 5 个生成热点。
         """
         time_threshold = datetime.utcnow() - timedelta(hours=24)
         items: List[RawItem] = self.db.query(RawItem).filter(
@@ -65,35 +62,35 @@ class ClusteringService:
                     "centroid": vector
                 })
 
-        processed_ids = set()
-        for cluster in clusters:
-            sources = {item.source_platform for item in cluster["members"] if item.source_platform}
-            if len(cluster["members"]) >= self.min_cluster_size and len(sources) >= self.min_sources:
-                logger.info(
-                    "Creating hotspot from cluster with %d items and sources=%s",
-                    len(cluster["members"]),
-                    ",".join(sorted(sources)),
-                )
-                await self._create_hotspot(cluster["members"])
-                processed_ids.update(item.id for item in cluster["members"] if item.id)
-
-        # 单条高热度兜底
-        high_heat_items = [
-            item for item in items
-            if item.id not in processed_ids and (item.heat_score or 0) >= self.high_heat_threshold
+        eligible_clusters = [
+            cluster for cluster in clusters
+            if len(cluster["members"]) >= self.min_cluster_size
         ]
 
-        for item in high_heat_items:
-            logger.info("High-heat item promoted to hotspot (source_id=%s, score=%.2f)", item.source_id, item.heat_score)
-            await self._create_hotspot([item])
-            processed_ids.add(item.id)
+        if not eligible_clusters:
+            logger.info("No eligible clusters found for hotspot creation")
+            return
+
+        # 按簇大小排序，选前 5 个
+        top_clusters = sorted(
+            eligible_clusters,
+            key=lambda c: len(c["members"]),
+            reverse=True
+        )[:5]
+
+        for cluster in top_clusters:
+            logger.info(
+                "Creating hotspot from cluster with %d items",
+                len(cluster["members"]),
+            )
+            await self._create_hotspot(cluster["members"])
 
     async def _create_hotspot(self, items: List[RawItem]):
         if not items:
             return
 
         title, summary = await self._generate_hotspot_text(items)
-        total_heat = sum(item.heat_score or 0 for item in items)
+        total_heat = len(items)  # 以簇内条目数作为热点“热度”
 
         hotspot = Hotspot(
             title=title,
