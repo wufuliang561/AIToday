@@ -7,7 +7,7 @@ ai:
   vector_model: doubao-embedding-text-240715
 
 system:
-  run_on_start: true  # 是否在启动时立即拉取一次所有源
+  run_on_start: false  # 是否在启动时立即拉取一次所有源
   #proxy: "http://127.0.0.1:7897" # Set your proxy URL here if needed
 
 api_keys:
