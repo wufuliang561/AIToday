@@ -39,3 +39,17 @@ export async function getFeed(): Promise<NewsItem[]> {
         return [];
     }
 }
+
+export interface HotspotDetail extends Hotspot {
+    items: NewsItem[]
+}
+
+export async function getHotspotDetails(id: number): Promise<HotspotDetail | null> {
+    try {
+        const res = await apiClient.get<HotspotDetail>(`/hotspots/${id}`);
+        return res.data;
+    } catch (error) {
+        console.error(`Error fetching hotspot details for ${id}:`, error);
+        return null;
+    }
+}

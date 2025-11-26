@@ -32,6 +32,7 @@ export default async function Home() {
               {hotspots.map((hotspot) => (
                 <div key={hotspot.id} className="min-w-[85vw] snap-center md:min-w-[450px]">
                   <HotspotCard
+                    id={hotspot.id}
                     title={hotspot.title}
                     summary={hotspot.summary}
                     score={hotspot.score}
