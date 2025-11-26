@@ -1,5 +1,6 @@
 import logging
 import json
+import asyncio
 from typing import Dict, Optional
 from openai import OpenAI
 from app.core.config import settings
@@ -25,21 +26,21 @@ class Processor:
             item.title_cn = item.original_title # 回退
             return item
 
-        if not self._is_ai_related(item):
-            logger.info("Item %s is not AI-related; skipping.", item.source_id)
-            return None
-
         try:
             logger.info(
                 "Processing item %s (%s) with single LLM call",
                 item.source_id,
                 item.source_platform,
             )
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=self._build_messages(item),
-            )
-            parsed = self._parse_structured_output(response.choices[0].message.content)
+            messages = self._build_messages(item)
+            self._log_prompt(item, messages)
+            content = await asyncio.to_thread(self._call_llm, messages)
+            self._log_response(item, content)
+            parsed = self._parse_structured_output(content)
+
+            if parsed.get("filtered"):
+                logger.info("Item %s filtered as non-AI; skipping.", item.source_id)
+                return None
 
             item.title_cn = parsed.get("title_cn") or item.original_title
             item.summary_cn = parsed.get("summary_cn") or ""
@@ -65,25 +66,25 @@ class Processor:
                 text_to_embed += f" {item.original_text[:500]}"
 
             logger.info("Generating embedding for item %s", item.source_id)
-            item.embedding = embedding_service.get_embedding(text_to_embed)
+            item.embedding = await asyncio.to_thread(embedding_service.get_embedding, text_to_embed)
         except Exception as e:
             logger.exception("Error generating embedding for item %s", item.id or item.source_id)
 
         return item
 
     def _build_messages(self, item: RawItem):
-        """根据来源构造一次性翻译/摘要/分类的提示词。"""
+        """根据来源构造一次性翻译/摘要/分类/过滤的提示词。"""
         categories_str = ", ".join(settings.NEWS_CATEGORIES)
         source = (item.source_platform or "rss").lower()
         system_prompt = (
-            "You are a bilingual tech editor. Translate to professional Chinese, keep AI/tech terms in English, "
-            "respect proper nouns, and return compact, factual outputs."
+            "You are a bilingual tech editor and AI relevance gatekeeper. Translate to professional Chinese, "
+            "keep AI/tech terms in English, respect proper nouns, and return compact, factual outputs."
         )
 
         source_prompts: Dict[str, str] = {
             "x": (
                 "来源：Twitter/X 推文\n"
-                "重点：保留账号/话题/模型名，捕捉核心观点或更新。"
+                "重点：保留账号/话题/模型名，捕捉核心观点或更新，生成新闻式标题。"
             ),
             "youtube": (
                 "来源：YouTube 视频\n"
@@ -106,6 +107,10 @@ class Processor:
         source_header = source_prompts.get(source, source_prompts["rss"])
         content_body = item.original_text or ""
 
+        title_step = "1) 翻译 Title 为中文标题，保留专有名词与产品名。"
+        if source == "x":
+            title_step = "1) 基于正文生成一句新闻式中文标题（不要直译，突出关键信息/动作/对象；正文为空再基于 Title）。"
+
         user_prompt = f"""
 {source_header}
 
@@ -114,7 +119,8 @@ Title: {item.original_title}
 Body: {content_body}
 
 任务（一次性完成）：
-1) 翻译 Title 为中文标题，保留专有名词与产品名。
+0) 首先判断内容是否与“人工智能、AI 工具、AI 产业、AI 研究”密切相关；若不相关，直接返回一行 "Filtered: Not AI-related"（不再输出其他内容）。
+{title_step}
 2) 生成一句中文摘要（若正文为空，可基于标题）。
 3) 从下列分类中选 1 个：{categories_str}。
 
@@ -134,6 +140,11 @@ Category: <分类名称>
         """
         if not content:
             return {}
+
+        normalized = content.strip()
+        normalized_lower = normalized.lower()
+        if normalized_lower.startswith("filtered"):
+            return {"filtered": True}
 
         # 优先尝试 JSON 解析
         try:
@@ -160,31 +171,45 @@ Category: <分类名称>
 
         return {"title_cn": title_cn, "summary_cn": summary_cn, "category": category}
 
-    def _is_ai_related(self, item: RawItem) -> bool:
-        """Use the LLM to determine whether the content is AI-related."""
-        text = item.original_title
-        if item.original_text:
-            text += f"\n\n{item.original_text[:500]}"
-
-        prompt = f"""
-        你是 AI 新闻过滤器。请判断下述内容是否与“人工智能、AI 工具、AI 产业、AI 研究”密切相关。
-        如果相关，回答 YES；如果只是泛泛的科技/商业/生活信息，请回答 NO。
-        只需返回 YES 或 NO。
-
-        内容：
-        {text}
-        """
-
+    def _log_prompt(self, item: RawItem, messages):
+        """记录发送给大模型的 system 与 user 提示词，便于排查。"""
         try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": "You are an AI relevance classifier. Reply with YES or NO."},
-                    {"role": "user", "content": prompt},
-                ],
+            system_msg = next((m.get("content", "") for m in messages if m.get("role") == "system"), "")
+            user_msg = next((m.get("content", "") for m in messages if m.get("role") == "user"), "")
+            logger.info(
+                "LLM prompt for item %s | system=%s | user=%s",
+                item.source_id,
+                self._truncate(system_msg),
+                self._truncate(user_msg),
             )
-            verdict = response.choices[0].message.content.strip().upper()
-            return verdict.startswith("Y")
         except Exception:
-            logger.exception("Failed to judge AI relevance for item %s", item.source_id)
-            return True
+            logger.exception("Failed to log LLM prompt for item %s", item.source_id)
+
+    def _log_response(self, item: RawItem, content: str):
+        """记录大模型的原始响应，保留排查上下文。"""
+        try:
+            logger.info(
+                "LLM response for item %s | raw=%s",
+                item.source_id,
+                self._truncate(content),
+            )
+        except Exception:
+            logger.exception("Failed to log LLM response for item %s", item.source_id)
+
+    @staticmethod
+    def _truncate(text: str, limit: int = 400) -> str:
+        """日志输出前对文本截断，避免过长刷屏。"""
+        if text is None:
+            return ""
+        text = str(text)
+        if len(text) <= limit:
+            return text
+        return text[:limit] + "...[truncated]"
+
+    def _call_llm(self, messages):
+        """同步调用 LLM，封装便于在线程池中运行。"""
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,
+        )
+        return response.choices[0].message.content

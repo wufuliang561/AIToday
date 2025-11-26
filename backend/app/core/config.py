@@ -100,6 +100,8 @@ class Settings(BaseSettings):
 
     # 调度与时区
     TIMEZONE: str = os.getenv("TIMEZONE", "Asia/Shanghai")
+    LLM_CONCURRENCY: int = int(os.getenv("LLM_CONCURRENCY", "20"))
+    RUN_COLLECT_ON_START: bool = True
 
     class Config:
         case_sensitive = True
@@ -188,6 +190,25 @@ class Settings(BaseSettings):
                     timezone = config.get("system", {}).get("timezone")
                     if timezone:
                         return timezone
+            except Exception:
+                pass
+        return v
+
+    @field_validator("RUN_COLLECT_ON_START", mode="before")
+    @classmethod
+    def load_startup_collect_flag(cls, v, info: ValidationInfo):
+        config_path = "sources.yaml"
+        if info.data:
+            config_path = info.data.get("SOURCES_CONFIG_PATH", config_path)
+        config_path = os.getenv("SOURCES_CONFIG_PATH", config_path)
+
+        if os.path.exists(config_path):
+            try:
+                with open(config_path, "r") as f:
+                    config = yaml.safe_load(f) or {}
+                    flag = config.get("system", {}).get("run_on_start")
+                    if flag is not None:
+                        return flag
             except Exception:
                 pass
         return v

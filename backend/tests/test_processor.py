@@ -52,7 +52,6 @@ async def test_process_item_parses_structured_lines(monkeypatch):
 
     proc = Processor()
     proc.client = fake_client
-    proc._is_ai_related = lambda item: True
 
     item = make_item(source_platform="reddit")
     result = await proc.process_item(item)
@@ -70,7 +69,6 @@ async def test_process_item_falls_back_when_category_unknown(monkeypatch):
 
     proc = Processor()
     proc.client = fake_client
-    proc._is_ai_related = lambda item: True
 
     item = make_item(source_platform="rss")
     result = await proc.process_item(item)
@@ -87,7 +85,6 @@ async def test_process_item_uses_source_specific_prompt(monkeypatch):
 
     proc = Processor()
     proc.client = fake_client
-    proc._is_ai_related = lambda item: True
 
     item = make_item(source_platform="youtube", original_text="demo description")
     await proc.process_item(item)
@@ -96,3 +93,34 @@ async def test_process_item_uses_source_specific_prompt(monkeypatch):
     user_prompt = fake_client.calls[-1][1]["content"]
     assert "YouTube 视频" in user_prompt
     assert "Title: T" not in user_prompt  # ensure we are inspecting prompt, not model output
+
+
+@pytest.mark.asyncio
+async def test_process_item_uses_news_headline_for_x(monkeypatch):
+    fake_client = FakeClient("Title: 中文标题\nSummary: 中文摘要\nCategory: AI工具")
+    monkeypatch.setattr(processor_module.embedding_service, "get_embedding", lambda text: None)
+
+    proc = Processor()
+    proc.client = fake_client
+
+    item = make_item(source_platform="x", original_text="tweet content about a new AI model release")
+    await proc.process_item(item)
+
+    user_prompt = fake_client.calls[-1][1]["content"]
+    assert "新闻式中文标题" in user_prompt
+    assert "不要直译" in user_prompt
+
+
+@pytest.mark.asyncio
+async def test_process_item_filters_non_ai(monkeypatch):
+    fake_client = FakeClient("Filtered: Not AI-related")
+    embed_inputs = []
+    monkeypatch.setattr(processor_module.embedding_service, "get_embedding", lambda text: embed_inputs.append(text))
+
+    proc = Processor()
+    proc.client = fake_client
+
+    result = await proc.process_item(make_item(original_title="Random sports news", original_text="Some sports story"))
+
+    assert result is None
+    assert embed_inputs == []

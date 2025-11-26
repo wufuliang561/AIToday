@@ -48,6 +48,7 @@ async def execute_collector_pipeline(run_label: str, collectors: List[BaseCollec
         clustering = ClusteringService(db)
 
         all_items = []
+        # 收集所有候选内容
         for collector in collectors:
             try:
                 logger.info("[%s] Collector %s started", run_label, collector.__class__.__name__)
@@ -61,7 +62,8 @@ async def execute_collector_pipeline(run_label: str, collectors: List[BaseCollec
             logger.info("[%s] No items collected; skipping persistence and clustering", run_label)
             return
 
-        saved_items = 0
+        # 预过滤数据库已存在的条目，避免重复
+        candidates = []
         for item in all_items:
             existing = db.query(RawItem).filter(RawItem.source_id == item.source_id).first()
             if existing:
@@ -72,26 +74,35 @@ async def execute_collector_pipeline(run_label: str, collectors: List[BaseCollec
                     item.title_cn or item.original_title,
                 )
                 continue
+            candidates.append(item)
 
+        if not candidates:
+            logger.info("[%s] No new candidates after duplicate check; skipping processing", run_label)
+            return
+
+        # 限制并发的协程池，异步跑 LLM 处理
+        semaphore = asyncio.Semaphore(settings.LLM_CONCURRENCY)
+
+        async def process_with_limit(item: RawItem):
+            async with semaphore:
+                return await processor.process_item(item)
+
+        processed_results = await asyncio.gather(*(process_with_limit(item) for item in candidates))
+
+        saved_items = 0
+        for item in processed_results:
+            if not item:
+                continue
             try:
-                processed_item = await processor.process_item(item)
-                if not processed_item:
-                    logger.info(
-                        "[%s] Discarded non-AI item (source_id=%s)",
-                        run_label,
-                        item.source_id,
-                    )
-                    continue
-
-                db.add(processed_item)
+                db.add(item)
                 db.commit()
                 saved_items += 1
                 logger.info(
                     "[%s] Saved item #%s from %s: %s",
                     run_label,
-                    processed_item.id,
-                    processed_item.source_platform,
-                    processed_item.title_cn or processed_item.original_title,
+                    item.id,
+                    item.source_platform,
+                    item.title_cn or item.original_title,
                 )
             except IntegrityError:
                 db.rollback()
@@ -114,25 +125,37 @@ async def execute_collector_pipeline(run_label: str, collectors: List[BaseCollec
         db.close()
 
 async def run_rss_task():
+    if _in_quiet_hours():
+        logger.info("[RSS Task] Skipped during quiet hours (23:00-06:00).")
+        return
     await execute_collector_pipeline("RSS Task", [RSSCollector()])
 
 async def run_youtube_task():
+    if _in_quiet_hours():
+        logger.info("[YouTube Task] Skipped during quiet hours (23:00-06:00).")
+        return
     await execute_collector_pipeline("YouTube Task", [YouTubeCollector()])
 
 async def run_huggingface_task():
+    if _in_quiet_hours():
+        logger.info("[Hugging Face Task] Skipped during quiet hours (23:00-06:00).")
+        return
     await execute_collector_pipeline("Hugging Face Task", [HuggingFaceCollector()])
+
+def _in_quiet_hours() -> bool:
+    """夜间 23:00-06:00 不执行抓取，避免打扰/占用资源。"""
+    now = datetime.now(tz=scheduler_timezone)
+    return now.hour >= 23 or now.hour < 6
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    first_run_at = datetime.now(tz=scheduler_timezone)  # fire once immediately after startup
     # 启动调度器
     scheduler.add_job(
         run_rss_task,
         'interval',
-        hours=2,
+        hours="5",
         id="rss_collection",
         replace_existing=True,
-        next_run_time=first_run_at,
     )
     scheduler.add_job(
         run_youtube_task,
@@ -141,25 +164,40 @@ async def lifespan(app: FastAPI):
         minute=0,
         id="youtube_collection",
         replace_existing=True,
-        next_run_time=first_run_at,
     )
     scheduler.add_job(
         run_huggingface_task,
         'cron',
-        hour="9", # Daily papers usually updated by then
+        hour="5", # Daily papers usually updated by then
         minute=0,
         id="huggingface_collection",
         replace_existing=True,
-        next_run_time=first_run_at,
     )
     scheduler.start()
+    if settings.RUN_COLLECT_ON_START:
+        if _in_quiet_hours():
+            logger.info("Startup collection enabled but skipped due to quiet hours.")
+        else:
+            logger.info("Startup collection enabled; running collectors once.")
+            await asyncio.gather(
+                run_rss_task(),
+                run_youtube_task(),
+                run_huggingface_task(),
+            )
+    else:
+        logger.info("Startup collection disabled by config; first run follows schedule.")
+    startup_note = (
+        "First run executes immediately on startup."
+        if settings.RUN_COLLECT_ON_START
+        else "Startup collection disabled; first run follows schedule."
+    )
     logger.info(
         (
-            "Scheduler started (timezone=%s). RSS every 2h, "
-            "YouTube daily at 08:00/20:00, Hugging Face daily at 09:00. "
-            "First run executes immediately on startup."
+            "Scheduler started (timezone=%s). RSS every 5h, "
+            "YouTube daily at 08:00/20:00, Hugging Face daily at 05:00. %s"
         ),
         scheduler_timezone,
+        startup_note,
     )
     
     yield

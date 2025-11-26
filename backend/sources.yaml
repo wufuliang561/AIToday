@@ -7,6 +7,7 @@ ai:
   vector_model: doubao-embedding-text-240715
 
 system:
+  run_on_start: true  # 是否在启动时立即拉取一次所有源
   #proxy: "http://127.0.0.1:7897" # Set your proxy URL here if needed
 
 api_keys:
@@ -18,7 +19,7 @@ api_keys:
   reddit_user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
 
 database:
-  host: "localhost"
+  host: "192.210.150.82"
   port: 5432
   user: "aitoday"
   password: "aitoday"
@@ -53,11 +54,6 @@ youtube:
     name: "No Priors"
     enabled: true
     description: "AI, ML, Tech & Startups"
-  
-  - id: "UCXl4i9dYBrFOabk0xGmbkRA"  # Dwarkesh Podcast ✅
-    name: "Dwarkesh Podcast"
-    enabled: true
-    description: "Deep conversations on AI and tech"
 
   - id: "UCKelCK4ZaO6HeEI1KQjqzWA"  # The AI Daily Brief ✅
     name: "The AI Daily Brief"
@@ -194,16 +190,30 @@ rss:
     - url: "https://rss.app/feeds/AAPQYwfvRjqTfYsj.xml"
       name: "naval AI"
       type: "rss_twitter"
-    - url: "https://www.reddit.com/r/StableDiffusion/hot.rss"
+    - url: "https://rss.app/feeds/8Gi8XtqlYKShMAi9.xml"
       name: "reddit StableDiffusion"
-    - url: "https://www.reddit.com/r/LocalLLaMA/hot.rss"
+      type: "rss_reddit"
+    - url: "https://rss.app/feeds/liyddwuF1L8N6p9d.xml"
       name: "reddit LocalLLaMA"
-    - url: "https://www.reddit.com/r/LocalLLaMA/hot.rss"
+      type: "rss_reddit"
+    - url: "https://rss.app/feeds/SeMtFHjoeygn3Dxe.xml"
       name: "reddit LocalLLaMA"
-    - url: "https://www.reddit.com/r/Artificial/hot.rss"
+      type: "rss_reddit"
+    - url: "https://rss.app/feeds/n6EoDLCAaXEesgsx.xml"
       name: "reddit Artificial"
-    - url: "https://www.reddit.com/r/Singularity/hot.rss"
+      type: "rss_reddit"
+    - url: "https://rss.app/feeds/LsmVrJ5gwKUbfs8N.xml"
       name: "reddit Singularity"
+      type: "rss_reddit"
+    - url: "https://rss.app/feeds/tt3p0I6cJUgTimiL.xml"
+      name: "rss.app  AI "
+      type: "rss_news"
+    - url: "https://rss.app/feeds/tsfnxnuGsjSVJD7n.xml"
+      name: "rss.app Artificial Intelligence  "
+      type: "rss_news"
+    - url: "https://rss.app/feeds/tTUWI3vXAzy6BhD8.xml"
+      name: "rss.app AI Coding"
+      type: "rss_news"
 
 huggingface:
   base_heat: 80

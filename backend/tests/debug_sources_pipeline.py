@@ -28,8 +28,8 @@ from app.core.logging_config import setup_logging
 # 支持的采集器，通过映射关系便于根据命令行参数动态实例化。
 COLLECTOR_FACTORIES: Dict[str, Type[BaseCollector]] = {
     # "youtube": YouTubeCollector,
-    # "rss": RSSCollector,
-    "reddit": RedditCollector,
+    "rss": RSSCollector,
+    #"reddit": RedditCollector,
 }
 
 

@@ -60,6 +60,10 @@ class RSSCollector(BaseCollector):
                 item: Optional[RawItem] = None
                 if feed_type == "rss_twitter":
                     item = self._build_twitter_item(entry, published, base_heat, category_override)
+                if feed_type == "rss_news":
+                    item = item = self._build_news_item(entry, published, base_heat, category_override)
+                if feed_type == "rss_reddit":
+                    item = item = self._build_reddit_item(entry, published, base_heat, category_override)
                 else:
                     item = self._build_default_item(entry, published, base_heat, category_override)
 
@@ -90,7 +94,48 @@ class RSSCollector(BaseCollector):
             category=category_override,
             heat_score=base_heat # RSS 的默认分数，可配置
         )
+    def _build_news_item(self, entry, published: datetime, base_heat: float, category_override: Optional[str]) -> RawItem:
+        """构建新闻RSS 条目的 RawItem。"""
+        description_html = getattr(entry, "description", "")
+        news_text = self._extract_text_from_html(description_html)
 
+        title = getattr(entry, "title", "") or ((news_text[:50] + "...") if news_text else "")
+        source_id = getattr(entry, "id", None) or getattr(entry, "link", "")
+        author = getattr(entry, "dc_creator", None) or getattr(entry, "author", None)
+
+        return RawItem(
+            source_platform="news",  # 统一用推文提示词
+            source_id=source_id,
+            original_title=title or "untitled tweet",
+            original_text=news_text or title,
+            title_cn="", # 由 LLM 填充
+            url=getattr(entry, "link", ""),
+            published_at=published,
+            category=category_override,
+            heat_score=base_heat,
+            author_name=author,
+        )
+    def _build_reddit_item(self, entry, published: datetime, base_heat: float, category_override: Optional[str]) -> RawItem:
+        """构建新闻RSS 条目的 RawItem。"""
+        description_html = getattr(entry, "description", "")
+        rss_text = self._extract_text_from_html(description_html)
+
+        title = getattr(entry, "title", "") or ((rss_text[:50] + "...") if rss_text else "")
+        source_id = getattr(entry, "id", None) or getattr(entry, "link", "")
+        author = getattr(entry, "dc_creator", None) or getattr(entry, "author", None)
+
+        return RawItem(
+            source_platform="news",  # 统一用推文提示词
+            source_id=source_id,
+            original_title=title or "untitled tweet",
+            original_text=rss_text or title,
+            title_cn="", # 由 LLM 填充
+            url=getattr(entry, "link", ""),
+            published_at=published,
+            category=category_override,
+            heat_score=base_heat,
+            author_name=author,
+        )
     def _build_twitter_item(
         self,
         entry,
@@ -118,7 +163,7 @@ class RSSCollector(BaseCollector):
             heat_score=base_heat,
             author_name=author,
         )
-
+    
     def _extract_text_from_html(self, html_content: str) -> str:
         """从 RSS 描述中剥离脚本/标签，保留锚文本形成纯文本。"""
         if not html_content:
