@@ -101,7 +101,7 @@ class Settings(BaseSettings):
     # 调度与时区
     TIMEZONE: str = os.getenv("TIMEZONE", "Asia/Shanghai")
     LLM_CONCURRENCY: int = int(os.getenv("LLM_CONCURRENCY", "20"))
-    RUN_COLLECT_ON_START: bool = True
+    RUN_COLLECT_ON_START: bool = False
 
     class Config:
         case_sensitive = True
