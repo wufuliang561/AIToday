@@ -1,4 +1,5 @@
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 from datetime import datetime, timedelta
 from typing import Dict, List
 from app.services.collectors.base import BaseCollector
@@ -16,17 +17,60 @@ class YouTubeCollector(BaseCollector):
         self.max_results = max(1, youtube_config.get("max_results", 5))
         self.lookback_hours = max(1, youtube_config.get("lookback_hours", 12))
         self.stats_batch_size = min(50, max(1, youtube_config.get("stats_batch_size", 25)))
-        self.api_key = settings.YOUTUBE_API_KEY if hasattr(settings, 'YOUTUBE_API_KEY') else "" 
-        # 注意：如果不存在，我们需要将 YOUTUBE_API_KEY 添加到设置中，
-        # 或者暂时只使用占位符。
+        raw_keys = []
+        # 支持 sources.yaml 的 youtube.api_keys 列表以及顶层 api_keys.youtube
+        config_keys = youtube_config.get("api_keys", [])
+        if isinstance(config_keys, str):
+            config_keys = [config_keys]
+        raw_keys.extend(config_keys)
+        api_keys_root = self.config.get("api_keys", {})
+        if isinstance(api_keys_root.get("youtube"), str):
+            raw_keys.append(api_keys_root.get("youtube"))
+        # 环境变量单 key
+        if getattr(settings, "YOUTUBE_API_KEY", ""):
+            raw_keys.append(settings.YOUTUBE_API_KEY)
+        # 去重并过滤空值
+        self.api_keys = [k for i, k in enumerate(raw_keys) if k and k not in raw_keys[:i]]
+        self.api_key_index = 0
+
+    def _current_api_key(self) -> str:
+        if not self.api_keys:
+            return ""
+        return self.api_keys[self.api_key_index]
+
+    def _rotate_api_key(self) -> bool:
+        if not self.api_keys or len(self.api_keys) == 1:
+            return False
+        old_key = self._current_api_key()
+        self.api_key_index = (self.api_key_index + 1) % len(self.api_keys)
+        logger.warning(
+            "Rotating YouTube API key from index %d to %d",
+            (self.api_key_index - 1) % len(self.api_keys),
+            self.api_key_index,
+        )
+        return self._current_api_key() != old_key
+
+    def _build_client(self):
+        api_key = self._current_api_key()
+        if not api_key:
+            return None
+        return build("youtube", "v3", developerKey=api_key)
+
+    @staticmethod
+    def _is_quota_exceeded(error: HttpError) -> bool:
+        try:
+            reason = error.error_details[0]["reason"]  # type: ignore
+            return reason == "quotaExceeded"
+        except Exception:
+            return False
 
     async def collect(self) -> List[RawItem]:
         logger.info("Starting YouTube collection...")
-        if not self.api_key:
-            logger.warning("YOUTUBE_API_KEY not set.")
+        if not self.api_keys:
+            logger.warning("No YouTube API keys configured.")
             return []
 
-        youtube = build("youtube", "v3", developerKey=self.api_key)
+        youtube = self._build_client()
         items = []
         if not self.channels:
             logger.info("No YouTube channels configured.")
@@ -44,22 +88,33 @@ class YouTubeCollector(BaseCollector):
         for channel in self.channels:
             channel_id = channel.get("id")
             
-            try:
-                request = youtube.search().list(
-                    part="snippet",
-                    channelId=channel_id,
-                    order="date",
-                    publishedAfter=time_threshold,
-                    type="video",
-                    maxResults=self.max_results
-                )
-                response = request.execute()
-                
-                channel_items = response.get("items", [])
-                logger.info(f"Collected {len(channel_items)} videos from channel {channel.get('name')} ({channel_id})")
-            except Exception as e:
-                logger.error(f"Error collecting from channel {channel.get('name')} ({channel_id}): {e}")
-                continue
+            for attempt in range(len(self.api_keys) or 1):
+                try:
+                    request = youtube.search().list(
+                        part="snippet",
+                        channelId=channel_id,
+                        order="date",
+                        publishedAfter=time_threshold,
+                        type="video",
+                        maxResults=self.max_results
+                    )
+                    response = request.execute()
+                    
+                    channel_items = response.get("items", [])
+                    logger.info(f"Collected {len(channel_items)} videos from channel {channel.get('name')} ({channel_id}) with key#{self.api_key_index}")
+                    break
+                except HttpError as e:
+                    if self._is_quota_exceeded(e) and self._rotate_api_key():
+                        youtube = self._build_client()
+                        logger.warning("Quota exceeded, switched API key to index %d", self.api_key_index)
+                        continue
+                    logger.error(f"Error collecting from channel {channel.get('name')} ({channel_id}): {e}")
+                    channel_items = []
+                    break
+                except Exception as e:
+                    logger.error(f"Error collecting from channel {channel.get('name')} ({channel_id}): {e}")
+                    channel_items = []
+                    break
             
             video_ids = [item["id"].get("videoId") for item in channel_items if item.get("id", {}).get("videoId")]
             stats_map = self._fetch_video_stats(youtube, video_ids)
