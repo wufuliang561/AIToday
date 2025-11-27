@@ -125,21 +125,21 @@ async def execute_collector_pipeline(run_label: str, collectors: List[BaseCollec
         db.close()
 
 async def run_rss_task():
-    if _in_quiet_hours():
-        logger.info("[RSS Task] Skipped during quiet hours (23:00-06:00).")
-        return
+    # if _in_quiet_hours():
+    #     logger.info("[RSS Task] Skipped during quiet hours (23:00-06:00).")
+    #     return
     await execute_collector_pipeline("RSS Task", [RSSCollector()])
 
 async def run_youtube_task():
-    if _in_quiet_hours():
-        logger.info("[YouTube Task] Skipped during quiet hours (23:00-06:00).")
-        return
+    # if _in_quiet_hours():
+    #     logger.info("[YouTube Task] Skipped during quiet hours (23:00-06:00).")
+    #     return
     await execute_collector_pipeline("YouTube Task", [YouTubeCollector()])
 
 async def run_huggingface_task():
-    if _in_quiet_hours():
-        logger.info("[Hugging Face Task] Skipped during quiet hours (23:00-06:00).")
-        return
+    # if _in_quiet_hours():
+    #     logger.info("[Hugging Face Task] Skipped during quiet hours (23:00-06:00).")
+    #     return
     await execute_collector_pipeline("Hugging Face Task", [HuggingFaceCollector()])
 
 def _in_quiet_hours() -> bool:
