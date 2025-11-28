@@ -60,9 +60,9 @@ class RSSCollector(BaseCollector):
                 item: Optional[RawItem] = None
                 if feed_type == "rss_twitter":
                     item = self._build_twitter_item(entry, published, base_heat, category_override)
-                if feed_type == "rss_news":
+                elif feed_type == "rss_news":
                     item = item = self._build_news_item(entry, published, base_heat, category_override)
-                if feed_type == "rss_reddit":
+                elif feed_type == "rss_reddit":
                     item = item = self._build_reddit_item(entry, published, base_heat, category_override)
                 else:
                     item = self._build_default_item(entry, published, base_heat, category_override)

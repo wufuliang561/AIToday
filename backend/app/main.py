@@ -168,7 +168,7 @@ async def lifespan(app: FastAPI):
     scheduler.add_job(
         run_huggingface_task,
         'cron',
-        hour="5", # Daily papers usually updated by then
+        hour="8", # Daily papers usually updated by then
         minute=0,
         id="huggingface_collection",
         replace_existing=True,
