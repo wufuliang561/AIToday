@@ -1,7 +1,7 @@
 ai:
   base_url: https://zenmux.ai/api/v1
   api_key: "sk-ai-v1-1bc3cffa2758cf78a99af5c40a59073d956140b2fc6c08f38a151780680993d3"
-  model: moonshotai/kimi-k2-thinking
+  model: deepseek/deepseek-chat
   vector_base_url: https://ark.cn-beijing.volces.com/api/v3
   vector_api_key: "8655a315-0938-459e-afcb-b5f67c0f6b67"
   vector_model: doubao-embedding-text-240715
